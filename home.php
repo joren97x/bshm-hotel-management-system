@@ -1,7 +1,7 @@
 <?php
 
 include 'config.php';
-session_start();
+include 'navbar.php';
 
 // page redirect
 // $usermail="";
@@ -13,14 +13,13 @@ session_start();
 // }
 
 // fetch user details
-$user_sql = "SELECT * FROM signup WHERE Email='$usermail'";
-$user_result = mysqli_query($conn, $user_sql);
-$user_data = mysqli_fetch_assoc($user_result);
+// $user_sql = "SELECT * FROM signup WHERE Email='$usermail'";
+// $user_result = mysqli_query($conn, $user_sql);
+// $user_data = mysqli_fetch_assoc($user_result);
 
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -35,18 +34,10 @@ $user_data = mysqli_fetch_assoc($user_result);
     <!-- sweet alert -->
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <link rel="stylesheet" href="./admin/css/roombook.css">
-    <style>
-      #guestdetailpanel{
-        display: none;
-      }
-      #guestdetailpanel .middle{
-        height: 450px;
-      }
-    </style>
+  
 </head>
 
-<body>
-<nav>
+<!-- <nav>
         <div class="logo">
             <img class="hotellogo" src="./image/hm.jpg" alt="logo">
             <p>CPC HOTELS</p>
@@ -59,7 +50,7 @@ $user_data = mysqli_fetch_assoc($user_result);
             <li><a href="user_profile.php"><?php echo $user_data['Username']; ?></a></li>
             <a href="./logout.php"><button class="btn btn-danger">Logout</button></a>
         </ul>
-    </nav>
+    </nav> -->
 
   <section id="firstsection" class="carousel slide carousel_section" data-bs-ride="carousel">
     <div class="carousel-inner">

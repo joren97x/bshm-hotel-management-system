@@ -3,20 +3,20 @@ session_start();
 include 'config.php';
 
 // Ensure user is logged in
-if (!isset($_SESSION['usermail']) || empty($_SESSION['usermail'])) {
-    header("Location: index.php");
-    exit();
-}
+// if (!isset($_SESSION['usermail']) || empty($_SESSION['usermail'])) {
+//     header("Location: index.php");
+//     exit();
+// }
 
-$usermail = $_SESSION['usermail'];
+// $usermail = $_SESSION['usermail'];
 
 // Fetch user details
-$user_sql = "SELECT * FROM signup WHERE Email='$usermail'";
-$user_result = mysqli_query($conn, $user_sql);
-if (!$user_result) {
-    die("Query Failed: " . mysqli_error($conn));
-}
-$user_data = mysqli_fetch_assoc($user_result);
+// $user_sql = "SELECT * FROM signup WHERE Email='$usermail'";
+// $user_result = mysqli_query($conn, $user_sql);
+// if (!$user_result) {
+//     die("Query Failed: " . mysqli_error($conn));
+// }
+// $user_data = mysqli_fetch_assoc($user_result);
 
 // Handle profile update
 if (isset($_POST['update_profile'])) {

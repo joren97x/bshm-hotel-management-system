@@ -66,7 +66,7 @@ include 'navbar.php';
             <!-- Room Card -->
             <?php
                 // Query to fetch all rooms from the database
-                $sql = "SELECT * FROM rooms";
+                $sql = "SELECT * FROM rooms GROUP BY room_type";
                 $result = mysqli_query($conn, $sql);
 
                 // Check if the query returned results

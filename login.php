@@ -86,13 +86,13 @@ if (isset($_POST['user_login_submit'])) {
 
             // Check user role and redirect accordingly
             if ($user['role'] === 'admin') {
-                header("Location: ./admin/room.php");
+                header("Location: ./admin/dashboard.php");
             } elseif ($user['role'] === 'house_keeping') {
                 header("Location: ./house_keeping/dashboard.php");
             } elseif ($user['role'] === 'front_desk') {
                 header("Location: ./front_desk/dashboard.php");
             } elseif ($user['role'] === 'user') {
-                header("Location: user_dashboard.php");
+                header("Location: index.php");
             } else {
                 echo "<script>swal({ title: 'Unknown role', icon: 'error' });</script>";
             }

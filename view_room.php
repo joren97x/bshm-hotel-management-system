@@ -4,7 +4,7 @@ include 'config.php';
 include 'navbar.php';
 
 // Get room ID from URL (e.g., /view_room.php?id=1)
-$room_id = isset($_GET['id']) ? $_GET['id'] : 0;
+$room_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 // Query to get room data based on room ID
 $sql = "SELECT * FROM rooms WHERE id = $room_id";
@@ -18,10 +18,36 @@ if ($row = mysqli_fetch_assoc($result)) {
     $room_price = $row['price'];
     $room_description = $row['description'];
     $room_amenities = $row['amenities'];
-    $images = explode(',', $row['images']); // Assuming images are stored as comma-separated string
+    $images = explode(',', $row['images']); // Assuming images are stored as a comma-separated string
 } else {
     echo "Room not found.";
     exit;
+}
+
+// Query to count available rooms of the same type
+$available_sql = "SELECT COUNT(*) AS available_count FROM rooms WHERE room_type = '" . mysqli_real_escape_string($conn, $row['room_type']) . "' AND status = 'Vacant'";
+$available_result = mysqli_query($conn, $available_sql);
+$available_data = mysqli_fetch_assoc($available_result);
+$available_rooms = (int)$available_data['available_count']; // Number of available rooms
+
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $user_id = 1; // Replace with actual logged-in user ID
+    $check_in = $_POST['check_in'];
+    $check_out = $_POST['check_out'];
+    $number_of_rooms = (int)$_POST['number_of_rooms'];
+    $total_price = $number_of_rooms * $room_price;
+
+    for ($i = 0; $i < $number_of_rooms; $i++) {
+        $insert_sql = "INSERT INTO bookings (user_id, room_id, status, check_in, check_out, total_price, created_at) 
+                       VALUES ('$user_id', '$room_id', 'pending', '$check_in', '$check_out', '$room_price', NOW())";
+
+        if (!mysqli_query($conn, $insert_sql)) {
+            echo "Error: " . mysqli_error($conn);
+        }
+    }
+
+    echo "Booking successful!";
 }
 ?>
 
@@ -29,35 +55,15 @@ if ($row = mysqli_fetch_assoc($result)) {
     <div class="row">
         <div class="col-6">
             <!-- Carousel for Room Images -->
-            <div id="roomCarousel" class="carousel slide" data-bs-ride="carousel">
-                <div class="carousel-inner">
-                    <?php
-                    $isActive = true; // First image should be active
-                    foreach ($images as $image) {
-                        echo '<div class="carousel-item ' . ($isActive ? 'active' : '') . '">';
-                        echo '<img src="./uploads/' . $image . '" style="width: 100%" alt="Room Image">';
-                        echo '</div>';
-                        $isActive = false;
-                    }
-                    ?>
-                </div>
-                <button class="carousel-control-prev" type="button" data-bs-target="#roomCarousel" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Previous</span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#roomCarousel" data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Next</span>
-                </button>
-            </div>
+            <img src="./uploads/<?php echo $images[0] ?>" alt="" style="width: 100%; height: 412px">
         </div>
         <div class="col-6">
             <div class="row">
                 <?php
-                // Show additional images in a grid
-                foreach ($images as $image) {
-                    echo '<div class="col-6">';
-                    echo '<img src="./uploads/' . $image . '" style="width: 100%" alt="Room Image">';
+                // Skip the first image and show the rest
+                foreach (array_slice($images, 1) as $image) {
+                    echo '<div class="col-6 p-1">';
+                    echo '<img src="./uploads/' . $image . '" style="width: 100%; height: 200px" alt="Room Image">';
                     echo '</div>';
                 }
                 ?>
@@ -67,7 +73,7 @@ if ($row = mysqli_fetch_assoc($result)) {
 
     <div class="row">
         <!-- Left Column - Room Description -->
-        <div class="col-lg-8">
+        <div class="col-lg-7">
             <div class="room-description mt-4">
                 <h3><?php echo htmlspecialchars($room_name); ?></h3>
                 <p class="room-details"><?php echo htmlspecialchars($room_type); ?></p>
@@ -79,37 +85,43 @@ if ($row = mysqli_fetch_assoc($result)) {
         </div>
 
         <!-- Right Column - Reservation Section -->
-        <div class="col-lg-4">
-            <div class="border p-3 rounded shadow-sm">
-                <h4 class="price">₱<?php echo number_format($room_price, 2); ?> / night</h4>
-                <div class="mb-3">
-                    <label for="checkIn" class="form-label">Check-in</label>
-                    <input type="date" class="form-control" id="checkIn" value="2024-12-07">
+        <div class="col-lg-5">
+            <form method="POST" action="">
+                <div class="border p-3 rounded shadow-sm">
+                    <h4 class="price">₱<?php echo number_format($room_price, 2); ?> / night</h4>
+                    <div class="row">
+                        <div class="mb-3 col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                            <label for="checkIn" class="form-label">Check-in</label>
+                            <input type="date" class="form-control" id="checkIn" name="check_in" required>
+                        </div>
+                        <div class="mb-3 col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                            <label for="checkOut" class="form-label">Check-out</label>
+                            <input type="date" class="form-control" id="checkOut" name="check_out" required>
+                        </div>
+                        <div class="mb-3 col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                            <label for="guests" class="form-label">Guests</label>
+                            <select class="form-select" id="guests">
+                                <option value="1">1 guest</option>
+                                <option value="2">2 guests</option>
+                                <option value="3">3 guests</option>
+                                <option value="4">4 guests</option>
+                            </select>
+                        </div>
+                        <div class="mb-3 col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                            <label for="number_of_rooms" class="form-label">No. of Rooms</label>
+                            <select class="form-select" id="number_of_rooms" name="number_of_rooms" required>
+                                <?php
+                                // Generate room options based on available rooms
+                                for ($i = 1; $i <= $available_rooms; $i++) {
+                                    echo "<option value='$i'>$i room" . ($i > 1 ? 's' : '') . "</option>";
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn reserve-btn w-100">Reserve</button>
                 </div>
-                <div class="mb-3">
-                    <label for="checkOut" class="form-label">Check-out</label>
-                    <input type="date" class="form-control" id="checkOut" value="2024-12-12">
-                </div>
-                <div class="mb-3">
-                    <label for="guests" class="form-label">Guests</label>
-                    <select class="form-select" id="guests">
-                        <option value="1">1 guest</option>
-                        <option value="2">2 guests</option>
-                        <option value="3">3 guests</option>
-                        <option value="4">4 guests</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label for="guests" class="form-label">No. of Rooms</label>
-                    <select class="form-select" id="guests">
-                        <option value="1">1 room</option>
-                        <option value="2">2 rooms</option>
-                        <option value="3">3 rooms</option>
-                        <option value="4">4 rooms</option>
-                    </select>
-                </div>
-                <button class="btn reserve-btn w-100">Reserve</button>
-            </div>
+            </form>
         </div>
     </div>
 </div>

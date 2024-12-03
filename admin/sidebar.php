@@ -4,14 +4,14 @@ session_start();
 // Check if user is logged in and is an admin
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     // Redirect to login or home page
-    header("Location: login.php");
+    header("Location: ../login.php");
     exit;
 }
 
 // Logout functionality
 if (isset($_GET['logout'])) {
     session_destroy();
-    header("Location: login.php");
+    header("Location: ../login.php");
     exit;
 }
 ?>

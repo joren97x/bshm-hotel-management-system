@@ -1,13 +1,8 @@
 <?php
-session_start();
 include 'config.php';
 
-if (!isset($_SESSION['usermail'])) {
-    header("Location: index.php");
-    exit();
-}
 
-$usermail = $_SESSION['usermail'];
+// $usermail = $_SESSION['usermail'];
 
 if (isset($_GET['room_id'])) {
     $room_id = $_GET['room_id'];
