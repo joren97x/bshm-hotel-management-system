@@ -74,6 +74,7 @@ include 'navbar.php';
 
       <!-- bookbox -->
       <div id="guestdetailpanel">
+        hi
         <form action="" method="POST" class="guestdetailpanelform">
             <div class="head">
                 <h3>RESERVATION</h3>

@@ -64,7 +64,7 @@ if (isset($_POST['user_login_submit'])) {
     $password = $_POST['password'];
 
     // Debug the form inputs
-    var_dump($email, $password);
+    // var_dump($email, $password);
 
     // Use prepared statements
     $stmt = $conn->prepare("SELECT * FROM users WHERE LOWER(email) = LOWER(?)");

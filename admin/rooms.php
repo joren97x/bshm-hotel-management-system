@@ -143,33 +143,35 @@ $result = mysqli_query($conn, $sql);
         <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <!-- <th>ID</th> -->
+                    <th>Image</th>
                     <th>Name</th>
+                    <th>Room Number</th>
                     <th>Room Type</th>
                     <th>Price</th>
                     <th>Capacity</th>
-                    <th>Amenities</th>
-                    <th>Room Number</th>
-                    <th>Image</th>
+                    <th>Status</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <?php while ($row = mysqli_fetch_assoc($result)): ?>
                     <tr>
-                        <td><?= $row['id']; ?></td>
-                        <td><?= $row['name']; ?></td>
-                        <td><?= $row['room_type']; ?></td>
-                        <td><?= $row['price']; ?></td>
-                        <td><?= $row['capacity']; ?></td>
-                        <td><?= $row['amenities']; ?></td>
-                        <td><?= $row['room_number']; ?></td>
+                        <!-- <td><?= $row['id']; ?></td> -->
                         <td>
                             <?php
                             $images = explode(',', $row['images']);
                             echo "<img src='$images[0]' width='100' alt='Room Image' class='me-2'>";
                             ?>
                         </td>
+                        <td><?= $row['name']; ?></td>
+                        <td><?= $row['room_number']; ?></td>
+                        <td><?= $row['room_type']; ?></td>
+                        <td><?= $row['price']; ?></td>
+                        <td><?= $row['status']; ?></td>
+                        <td><?= $row['capacity']; ?></td>
+                        <!-- <td><?= $row['amenities']; ?></td> -->
+                        
                         <td>
                             <!-- <a href="javascript:void(0);" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#roomModal" onclick="editRoom(<?= $row['id']; ?>)">Edit</a> -->
                             <a href="?delete=<?= $row['id']; ?>" class="btn btn-danger btn-sm">Delete</a>
