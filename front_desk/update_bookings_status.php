@@ -5,6 +5,7 @@ if (isset($_POST['booking_id']) && isset($_POST['action'])) {
     $booking_id = $_POST['booking_id'];
     $action = $_POST['action'];
 
+   
     // Check action and update accordingly
     if ($action === 'check_in') {
         $booking_query = "UPDATE bookings SET status = 'checked_in' WHERE id = ?";

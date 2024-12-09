@@ -67,10 +67,10 @@ if (isset($_GET['logout'])) {
         <a class="nav-link" href="./approved_bookings.php">Approved Bookings</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="./rooms.php">Reservations</a>
+        <a class="nav-link" href="./reservations.php">Reservations</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="./payments.php">Bookings History</a>
+        <a class="nav-link" href="./bookings_history.php">Bookings History</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="?logout=true">Logout</a>

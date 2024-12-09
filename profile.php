@@ -11,7 +11,7 @@ $user_result = mysqli_query($conn, $user_query);
 $user = mysqli_fetch_assoc($user_result);
 
 // Fetch user bookings
-$bookings_query = "SELECT b.id, b.code, r.name AS room_name, b.check_in, b.check_out, b.status, b.total_price 
+$bookings_query = "SELECT b.id, b.code, r.name, r.room_type, r.room_number AS room_name, b.check_in, b.check_out, b.status, b.total_price 
                    FROM bookings b 
                    JOIN rooms r ON b.room_id = r.id 
                    WHERE b.user_id = $user_id";
@@ -21,7 +21,7 @@ $bookings_result = mysqli_query($conn, $bookings_query);
 <div class="container my-5">
     <div class="row">
         <!-- User Details Section -->
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">My Profile</h5>
@@ -33,7 +33,7 @@ $bookings_result = mysqli_query($conn, $bookings_query);
         </div>
 
         <!-- Bookings Section -->
-        <div class="col-md-8">
+        <div class="col-md-9">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">My Bookings</h5>
@@ -41,8 +41,9 @@ $bookings_result = mysqli_query($conn, $bookings_query);
                         <table class="table table-striped">
                             <thead>
                                 <tr>
-                                    <th>#</th>
-                                    <th>Room</th>
+                                    <!-- <th>#</th> -->
+                                    <th>Room Number</th>
+                                    <th>Room Type</th>
                                     <th>Check-In</th>
                                     <th>Check-Out</th>
                                     <th>Status</th>
@@ -53,8 +54,8 @@ $bookings_result = mysqli_query($conn, $bookings_query);
                             <tbody>
                                 <?php while ($booking = mysqli_fetch_assoc($bookings_result)): ?>
                                     <tr>
-                                        <td><?php echo $booking['id']; ?></td>
                                         <td><?php echo htmlspecialchars($booking['room_name']); ?></td>
+                                        <td><?php echo htmlspecialchars($booking['room_type']); ?></td>
                                         <td><?php echo htmlspecialchars($booking['check_in']); ?></td>
                                         <td><?php echo htmlspecialchars($booking['check_out']); ?></td>
                                         <td><?php echo htmlspecialchars($booking['status']); ?></td>

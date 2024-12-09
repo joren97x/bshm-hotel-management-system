@@ -60,7 +60,7 @@ include 'navbar.php';
     }
   </style>
 <section id="room-list">
-    <h1 class="head text-center">≼ Our Rooms ≽</h1>
+    <h1 class="head text-center">≼ Our Facilities ≽</h1>
     <div class="container">
         <div class="row">
             <!-- Room Card -->
