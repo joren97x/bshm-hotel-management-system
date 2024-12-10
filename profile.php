@@ -82,7 +82,16 @@ $bookings_result = mysqli_query($conn, $bookings_query);
                                                     onclick="viewBooking(<?php echo htmlspecialchars(json_encode($booking)); ?>)">
                                                 View Details
                                             </button>
+
+                                            <?php if ($booking['status'] === 'pending'): ?>
+                                                <button class="btn btn-danger btn-sm" 
+                                                        onclick="cancelBooking(<?php echo $booking['id']; ?>)">
+                                                    Cancel
+                                                </button>
+                                            <?php endif; ?>
+
                                         </td>
+
                                     </tr>
                                 <?php endwhile; ?>
                             </tbody>
@@ -137,6 +146,56 @@ $bookings_result = mysqli_query($conn, $bookings_query);
         document.getElementById('status').textContent = booking.status;
         document.getElementById('bookingCode').textContent = booking.code;
         document.getElementById('totalPrice').textContent = booking.total_price;
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function cancelBooking(bookingId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to undo this action!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, cancel it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Send cancellation request to the server
+                fetch('cancel_booking.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ booking_id: bookingId }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire(
+                            'Canceled!',
+                            'Your booking has been canceled.',
+                            'success'
+                        ).then(() => {
+                            window.location.reload(); // Reload the page
+                        });
+                    } else {
+                        Swal.fire(
+                            'Error!',
+                            'Unable to cancel the booking. Please try again.',
+                            'error'
+                        );
+                    }
+                })
+                .catch(error => {
+                    Swal.fire(
+                        'Error!',
+                        'Something went wrong. Please try again.',
+                        'error'
+                    );
+                });
+            }
+        });
     }
 </script>
 

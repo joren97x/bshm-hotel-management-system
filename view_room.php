@@ -50,6 +50,8 @@ $available_sql = "SELECT COUNT(*) AS available_count FROM rooms WHERE room_type 
 $available_result = mysqli_query($conn, $available_sql);
 $available_data = mysqli_fetch_assoc($available_result);
 $available_rooms = (int)$available_data['available_count']; // Number of available rooms
+
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($missing_data)) {
     if (!isset($_SESSION['user'])) {
         echo "<script>window.location.href = 'login.php';</script>";
@@ -75,7 +77,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($missing_data)) {
     // Calculate total price
     $total_price = $days * $number_of_rooms * $room_price;
 
-    // Fetch available rooms that are not booked for the given dates
+    // Fetch the total count of available rooms for the given dates and room type
+    $available_rooms_count_sql = "
+        SELECT COUNT(r.id) AS available_count
+        FROM rooms r
+        WHERE r.room_type = '" . mysqli_real_escape_string($conn, $row['room_type']) . "' 
+        AND r.id NOT IN (
+            SELECT b.room_id 
+            FROM bookings b
+            WHERE ('$check_in' < b.check_out AND '$check_out' > b.check_in)
+            AND b.status NOT IN ('cancelled', 'complete', 'checked_out')
+        )";
+
+    $available_rooms_count_result = mysqli_query($conn, $available_rooms_count_sql);
+    $available_rooms_count_data = mysqli_fetch_assoc($available_rooms_count_result);
+    $available_count = (int)$available_rooms_count_data['available_count'];
+
+    if ($number_of_rooms > $available_count) {
+        // SweetAlert Error Modal
+        echo "
+        <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Insufficient Rooms Available',
+                text: 'You requested $number_of_rooms room(s), but only $available_count room(s) are available.',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                window.history.back();
+            });
+        </script>";
+        exit;
+    }
+
+    // Fetch available rooms excluding those with active bookings
     $available_rooms_sql = "
         SELECT r.id 
         FROM rooms r
@@ -84,6 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($missing_data)) {
             SELECT b.room_id 
             FROM bookings b
             WHERE ('$check_in' < b.check_out AND '$check_out' > b.check_in)
+            AND b.status NOT IN ('cancelled', 'complete', 'checked_out')
         )
         LIMIT $number_of_rooms";
 
@@ -91,23 +127,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($missing_data)) {
 
     if (!$available_rooms_result) {
         die("Error fetching available rooms: " . mysqli_error($conn));
-    }
-
-    if (mysqli_num_rows($available_rooms_result) === 0) {
-        echo "
-<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
-            
-            <script>
-                Swal.fire({
-                    icon: 'error',
-                    title: 'No Rooms Available',
-                    text: 'Unfortunately, there are no available rooms for the selected dates.',
-                    confirmButtonText: 'OK'
-                }).then(() => {
-                    window.history.back(); // Navigate back to the previous page
-                });
-            </script>";
-            exit;
     }
 
     $booked_rooms = [];
@@ -133,6 +152,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($missing_data)) {
         echo "No rooms were booked.";
     }
 }
+
+
 
 
 ?>

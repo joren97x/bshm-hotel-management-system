@@ -106,9 +106,9 @@ if (isset($_GET['logout'])) {
 
                 <select name="type" class="form-select" style="width: 200px; display: inline-block;">
                     <option value="">All Room Types</option>
-                    <option value="single" <?php echo $type_filter == 'single' ? 'selected' : ''; ?>>Single</option>
-                    <option value="double" <?php echo $type_filter == 'double' ? 'selected' : ''; ?>>Double</option>
-                    <option value="suite" <?php echo $type_filter == 'suite' ? 'selected' : ''; ?>>Suite</option>
+                    <option value="Superior" <?php echo $type_filter == 'Superior' ? 'selected' : ''; ?>>Superior</option>
+                    <option value="Deluxe" <?php echo $type_filter == 'Deluxe' ? 'selected' : ''; ?>>Deluxe</option>
+                    <option value="Standard" <?php echo $type_filter == 'Standard' ? 'selected' : ''; ?>>Standard</option>
                 </select>
             </div>
             <div>

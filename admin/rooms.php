@@ -228,9 +228,9 @@ $result = mysqli_query($conn, $sql);
                         <div class="mb-3">
                             <label for="room_type" class="form-label">Room Type</label>
                             <select class="form-control" name="room_type" id="room_type" required>
+                                <option value="Superior">Superior</option>
                                 <option value="Deluxe">Deluxe</option>
                                 <option value="Standard">Standard</option>
-                                <option value="Suite">Suite</option>
                             </select>
                         </div>
                         <div class="mb-3">
