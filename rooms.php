@@ -122,6 +122,4 @@ include 'navbar.php';
         </div>
     </div>
 </section>
-</body>
-
-</html>
+<?php include './footer.php'; ?>

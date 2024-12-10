@@ -49,17 +49,6 @@ if (isset($_GET['delete'])) {
 $sql = "SELECT * FROM users";
 $result = mysqli_query($conn, $sql);
 ?>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>User Management</title>
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
   <div class="container mt-5">
     <h2>User Management</h2>
     
@@ -175,5 +164,3 @@ $result = mysqli_query($conn, $sql);
         });
     }
   </script>
-</body>
-</html>

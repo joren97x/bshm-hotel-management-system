@@ -1,8 +1,7 @@
 <?php
-include 'config.php'; // Database connection
-include 'navbar.php'; // Navigation bar
+include 'config.php';
+include 'navbar.php';
 
-// Assume a logged-in user (replace with actual session-based logic)
 $user_id = $_SESSION['user']['id']; // Replace with the logged-in user's ID
 
 // Fetch user details
@@ -18,22 +17,45 @@ $bookings_query = "SELECT b.id, b.code, r.name, r.room_type, r.room_number AS ro
 $bookings_result = mysqli_query($conn, $bookings_query);
 ?>
 
+
+    <title>My Profile</title>
+    <style>
+        .card {
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-card {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .profile-card h5 {
+            margin-top: 10px;
+        }
+
+        .table-striped th,
+        .table-striped td {
+            vertical-align: middle;
+        }
+
+        .modal-body {
+            background-color: #f8f9fa;
+        }
+    </style>
 <div class="container my-5">
     <div class="row">
         <!-- User Details Section -->
-        <div class="col-md-3">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">My Profile</h5>
-                    <p><strong>Name:</strong> <?php echo htmlspecialchars($_SESSION['user']['first_name']); ?></p>
-                    <p><strong>Email:</strong> <?php echo htmlspecialchars($_SESSION['user']['email']); ?></p>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editAccountModal">Edit Account</button>
-                </div>
+        <div class="col-md-4">
+            <div class="card profile-card">
+                <!-- <img src="./uploads/default-user.png" alt="User Avatar" class="rounded-circle" width="150"> -->
+                <h5><?php echo htmlspecialchars($_SESSION['user']['first_name'] . ' ' . $_SESSION['user']['last_name']); ?></h5>
+                <p><strong>Email:</strong> <?php echo htmlspecialchars($_SESSION['user']['email']); ?></p>
+                <a href="edit_profile.php" class="btn btn-primary">Edit Profile</a>
             </div>
         </div>
 
         <!-- Bookings Section -->
-        <div class="col-md-9">
+        <div class="col-md-8">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">My Bookings</h5>
@@ -41,14 +63,10 @@ $bookings_result = mysqli_query($conn, $bookings_query);
                         <table class="table table-striped">
                             <thead>
                                 <tr>
-                                    <!-- <th>#</th> -->
                                     <th>Room Number</th>
                                     <th>Room Type</th>
-                                    <th>Check-In</th>
-                                    <th>Check-Out</th>
                                     <th>Status</th>
-                                    <th>Code</th>
-                                    <th>Total Price</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -56,11 +74,15 @@ $bookings_result = mysqli_query($conn, $bookings_query);
                                     <tr>
                                         <td><?php echo htmlspecialchars($booking['room_name']); ?></td>
                                         <td><?php echo htmlspecialchars($booking['room_type']); ?></td>
-                                        <td><?php echo htmlspecialchars($booking['check_in']); ?></td>
-                                        <td><?php echo htmlspecialchars($booking['check_out']); ?></td>
                                         <td><?php echo htmlspecialchars($booking['status']); ?></td>
-                                        <td><?php echo htmlspecialchars($booking['code']); ?></td>
-                                        <td>₱<?php echo number_format($booking['total_price'], 2); ?></td>
+                                        <td>
+                                            <button class="btn btn-info btn-sm" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#bookingModal" 
+                                                    onclick="viewBooking(<?php echo htmlspecialchars(json_encode($booking)); ?>)">
+                                                View Details
+                                            </button>
+                                        </td>
                                     </tr>
                                 <?php endwhile; ?>
                             </tbody>
@@ -74,35 +96,50 @@ $bookings_result = mysqli_query($conn, $bookings_query);
     </div>
 </div>
 
-<!-- Edit Account Modal -->
-<div class="modal fade" id="editAccountModal" tabindex="-1" aria-labelledby="editAccountModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+<!-- Booking Details Modal -->
+<div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <form method="POST" action="update_account.php">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editAccountModalLabel">Edit Account</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="name" class="form-label">Name</label>
-                        <input type="text" class="form-control" id="name" name="name" value="<?php echo htmlspecialchars($user['first_name']); ?>" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="phone" class="form-label">Phone</label>
-                        <input type="text" class="form-control" id="phone" name="phone" value="<?php echo htmlspecialchars($user['phone']); ?>" required>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                </div>
-            </form>
+            <div class="modal-header">
+                <h5 class="modal-title" id="bookingModalLabel">Booking Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Room Number:</strong> <span id="roomNumber"></span></p>
+                <p><strong>Room Type:</strong> <span id="roomType"></span></p>
+                <p><strong>Check-In:</strong> <span id="checkIn"></span></p>
+                <p><strong>Check-Out:</strong> <span id="checkOut"></span></p>
+                <p><strong>Status:</strong> <span id="status"></span></p>
+                <p><strong>Booking Code:</strong> <span id="bookingCode"></span></p>
+                <p><strong>Total Price:</strong> ₱<span id="totalPrice"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
         </div>
     </div>
 </div>
 
+<script>
+    // Format date to a more readable format
+    function formatDate(dateString) {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' }; // Customize the format here
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', options);
+    }
+
+    // Populate modal with booking details
+    function viewBooking(booking) {
+        document.getElementById('roomNumber').textContent = booking.room_name;
+        document.getElementById('roomType').textContent = booking.room_type;
+        document.getElementById('checkIn').textContent = formatDate(booking.check_in);
+        document.getElementById('checkOut').textContent = formatDate(booking.check_out);
+        document.getElementById('status').textContent = booking.status;
+        document.getElementById('bookingCode').textContent = booking.code;
+        document.getElementById('totalPrice').textContent = booking.total_price;
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

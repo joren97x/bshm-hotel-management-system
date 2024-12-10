@@ -21,7 +21,7 @@ if (!$result) {
 ?>
 <body>
     <div class="container mt-5">
-        <h2 class="mb-4">Pending Bookings</h2>
+        <h2 class="mb-4"> Booking History</h2>
         <table class="table table-bordered table-striped">
             <thead class="table-dark">
                 <tr>
@@ -30,6 +30,7 @@ if (!$result) {
                     <th>Room Type</th>
                     <th>Arrival</th>
                     <th>Departure</th>
+                    <th>Paid At</th>
                     <th>Status</th>
                 </tr>
             </thead>
@@ -41,6 +42,7 @@ if (!$result) {
                         <td><?php echo htmlspecialchars($row['room_type']); ?></td> <!-- User name -->
                         <td><?php echo $row['check_in']; ?></td>
                         <td><?php echo htmlspecialchars($row['check_out']); ?></td>
+                        <td><?php echo htmlspecialchars($row['paid_at']); ?></td>
                         <td><?php echo htmlspecialchars($row['status']); ?></td>
                     </tr>
                 <?php endwhile; ?>

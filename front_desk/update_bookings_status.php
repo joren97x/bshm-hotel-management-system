@@ -17,7 +17,7 @@ if (isset($_POST['booking_id']) && isset($_POST['action'])) {
         $booking_query = "UPDATE bookings SET status = 'checked_out' WHERE id = ?";
         $room_query = "
             UPDATE rooms 
-            SET status = 'available' 
+            SET status = 'not available' 
             WHERE id = (SELECT room_id FROM bookings WHERE id = ?)";
     } else {
         echo 'error';

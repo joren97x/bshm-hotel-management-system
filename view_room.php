@@ -23,24 +23,27 @@ if ($row = mysqli_fetch_assoc($result)) {
     exit;
 }
 
-
-$user_id = $_SESSION['user']['id']; // Replace with actual user session ID
-
-// Fetch user details
-$user_query = "SELECT * FROM users WHERE id = $user_id";
-$user_result = mysqli_query($conn, $user_query);
-$user = mysqli_fetch_assoc($user_result);
-
-// Check if any required field is null
 $missing_data = [];
-if (is_null($user['age'])) $missing_data[] = 'age';
-if (is_null($user['birthdate'])) $missing_data[] = 'birthdate';
-if (is_null($user['gender'])) $missing_data[] = 'gender';
-if (is_null($user['address'])) $missing_data[] = 'address';
-if (is_null($user['phone_number'])) $missing_data[] = 'phone_number';
 
-$missing_data_json = json_encode($missing_data); // Pass missing fields to JavaScript
+if(isset($_SESSION['user'])) {
+    
+    $user_id = $_SESSION['user']['id']; // Replace with actual user session ID
 
+    // Fetch user details
+    $user_query = "SELECT * FROM users WHERE id = $user_id";
+    $user_result = mysqli_query($conn, $user_query);
+    $user = mysqli_fetch_assoc($user_result);
+
+    // Check if any required field is null
+    if (is_null($user['age'])) $missing_data[] = 'age';
+    if (is_null($user['birthdate'])) $missing_data[] = 'birthdate';
+    if (is_null($user['gender'])) $missing_data[] = 'gender';
+    if (is_null($user['address'])) $missing_data[] = 'address';
+    if (is_null($user['phone_number'])) $missing_data[] = 'phone_number';
+
+    $missing_data_json = json_encode($missing_data); // Pass missing fields to JavaScript
+
+}
 
 // Query to count available rooms of the same type
 $available_sql = "SELECT COUNT(*) AS available_count FROM rooms WHERE room_type = '" . mysqli_real_escape_string($conn, $row['room_type']) . "' AND status = 'vacant'";
@@ -48,12 +51,18 @@ $available_result = mysqli_query($conn, $available_sql);
 $available_data = mysqli_fetch_assoc($available_result);
 $available_rooms = (int)$available_data['available_count']; // Number of available rooms
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($missing_data)) {
-    $user_id = $_SESSION['user']['id']; // Replace with actual logged-in user ID
+    if (!isset($_SESSION['user'])) {
+        echo "<script>window.location.href = 'login.php';</script>";
+        exit;
+    }
+
+    $user_id = $_SESSION['user']['id']; // Logged-in user ID
     $check_in = $_POST['check_in'];
     $check_out = $_POST['check_out'];
     $number_of_rooms = (int)$_POST['number_of_rooms'];
+    $guests = $_POST['guests'];
 
-    // Calculate the number of days between check-in and check-out
+    // Validate dates
     $check_in_date = new DateTime($check_in);
     $check_out_date = new DateTime($check_out);
     $days = $check_in_date->diff($check_out_date)->days;
@@ -66,12 +75,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($missing_data)) {
     // Calculate total price
     $total_price = $days * $number_of_rooms * $room_price;
 
-    // Fetch available rooms for the selected room type
-    $available_rooms_sql = "SELECT id FROM rooms WHERE room_type = '" . mysqli_real_escape_string($conn, $row['room_type']) . "' AND status = 'Vacant' LIMIT $number_of_rooms";
+    // Fetch available rooms that are not booked for the given dates
+    $available_rooms_sql = "
+        SELECT r.id 
+        FROM rooms r
+        WHERE r.room_type = '" . mysqli_real_escape_string($conn, $row['room_type']) . "' 
+        AND r.id NOT IN (
+            SELECT b.room_id 
+            FROM bookings b
+            WHERE ('$check_in' < b.check_out AND '$check_out' > b.check_in)
+        )
+        LIMIT $number_of_rooms";
+
     $available_rooms_result = mysqli_query($conn, $available_rooms_sql);
 
     if (!$available_rooms_result) {
         die("Error fetching available rooms: " . mysqli_error($conn));
+    }
+
+    if (mysqli_num_rows($available_rooms_result) === 0) {
+        echo "
+<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+            
+            <script>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'No Rooms Available',
+                    text: 'Unfortunately, there are no available rooms for the selected dates.',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    window.history.back(); // Navigate back to the previous page
+                });
+            </script>";
+            exit;
     }
 
     $booked_rooms = [];
@@ -79,28 +115,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($missing_data)) {
         $room_id = $room['id'];
 
         // Insert booking for each room
-        $insert_sql = "INSERT INTO bookings (user_id, room_id, status, check_in, check_out, total_price, created_at) 
-                       VALUES ('$user_id', '$room_id', 'pending', '$check_in', '$check_out', '$total_price', NOW())";
+        $insert_sql = "
+            INSERT INTO bookings (user_id, room_id, guests, status, check_in, check_out, total_price, created_at) 
+            VALUES ('$user_id', '$room_id', '$guests', 'pending', '$check_in', '$check_out', '$total_price', NOW())";
 
         if (mysqli_query($conn, $insert_sql)) {
-            // Update the room status to "occupied"
-            $update_sql = "UPDATE rooms SET status = 'occupied' WHERE id = $room_id";
-            if (!mysqli_query($conn, $update_sql)) {
-                echo "Error updating room status for room $room_id: " . mysqli_error($conn);
-            } else {
-                $booked_rooms[] = $room_id; // Keep track of successfully booked rooms
-            }
+            $booked_rooms[] = $room_id; // Keep track of successfully booked rooms
         } else {
             echo "Error inserting booking for room $room_id: " . mysqli_error($conn);
         }
     }
 
     if (count($booked_rooms) > 0) {
-        header("Location: profile.php");
+        echo "<script>window.location.href = 'profile.php';</script>";
+        exit;
     } else {
         echo "No rooms were booked.";
     }
 }
+
 
 ?>
   <link rel="stylesheet" href="./admin/css/roombook.css">
@@ -163,7 +196,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($missing_data)) {
                         </div>
                         <div class="mb-3 col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
                             <label for="guests" class="form-label">Guests</label>
-                            <select class="form-select" id="guests">
+                            <select class="form-select" id="guests" name="guests">
                                 <option value="1">1 guest</option>
                                 <option value="2">2 guests</option>
                                 <option value="3">3 guests</option>
@@ -196,7 +229,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($missing_data)) {
                             </select>
                         </div>
                     </div>
-                    <button class="btn reserve-btn w-100" type="submit">Reserve</button>
+                    <button class="btn reserve-btn w-100 btn-primary" type="submit">Reserve</button>
                 </div>
             </form>
 
@@ -285,3 +318,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($missing_data)) {
         </div>
     </div>
 </div>
+
+<?php include './footer.php'; ?>

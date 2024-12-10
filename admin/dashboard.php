@@ -50,12 +50,7 @@
 				
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link rel="stylesheet" href="./css/dashboard.css">
     <!-- chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -67,8 +62,6 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
 
     <title>CPC HOTEL - Admin </title>
-</head>
-<body>
    <div class="databox">
         <div class="box roombookbox">
           <h2>Total Booked Room</h1>  
@@ -93,7 +86,6 @@
             <h3 style="text-align: center;margin:10px 0;">Profit</h3>
         </div>
     </div>
-</body>
 
 
 
@@ -145,5 +137,3 @@ Morris.Bar({
  ]
 });
 </script>
-
-</html>

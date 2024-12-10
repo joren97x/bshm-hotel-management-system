@@ -1,3 +1,5 @@
+<?php session_start(); ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Responsive Navbar</title>
     <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="./admin/css/roombook.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         /* Custom Navbar Styling */
@@ -54,7 +57,6 @@
 </head>
 
 <body>
-    <?php session_start(); ?>
     <nav class="navbar navbar-expand-lg">
         <div class="container">
             <!-- Logo and Brand -->
@@ -80,6 +82,9 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="facilities.php">Facilities</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="contact_us.php">Contact Us</a>
                     </li>
                 </ul>
 

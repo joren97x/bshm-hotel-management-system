@@ -3,7 +3,7 @@ include '../config.php';
 include './sidebar.php';
 
 // Fetch available rooms
-$available_rooms_sql = "SELECT id, name FROM rooms WHERE status = 'vacant'";
+$available_rooms_sql = "SELECT id, name, room_type FROM rooms WHERE status = 'vacant'";
 $available_rooms_result = mysqli_query($conn, $available_rooms_sql);
 $rooms = [];
 while ($room = mysqli_fetch_assoc($available_rooms_result)) {
@@ -105,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <select class="form-select" id="room_id" name="room_id" required>
                 <option value="">-- Select a Room --</option>
                 <?php foreach ($rooms as $room): ?>
-                    <option value="<?php echo $room['id']; ?>"><?php echo $room['name']; ?></option>
+                    <option value="<?php echo $room['id']; ?>"><?php echo $room['room_type']; ?></option>
                 <?php endforeach; ?>
             </select>
         </div>

@@ -103,8 +103,17 @@ if (isset($_GET['delete'])) {
     }
 }
 
-// Fetch rooms
-$sql = "SELECT * FROM rooms";
+$search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
+$room_type_filter = isset($_GET['room_type']) ? mysqli_real_escape_string($conn, $_GET['room_type']) : '';
+
+// Build the query with search and filter
+$sql = "SELECT * FROM rooms WHERE 1=1";
+if (!empty($search)) {
+    $sql .= " AND (name LIKE '%$search%' OR room_number LIKE '%$search%' OR room_type LIKE '%$search%')";
+}
+if (!empty($room_type_filter)) {
+    $sql .= " AND room_type = '$room_type_filter'";
+}
 $result = mysqli_query($conn, $sql);
 ?>
 
@@ -140,44 +149,62 @@ $result = mysqli_query($conn, $sql);
         <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#roomModal">Add New Room</button>
 
         <!-- Room Table -->
+        <form method="GET" class="row g-3 mb-4">
+            <div class="col-md-4">
+                <input type="text" name="search" class="form-control" placeholder="Search by Name, Number, or Type" value="<?= htmlspecialchars($search); ?>">
+            </div>
+            <div class="col-md-4">
+                <select name="room_type" class="form-select">
+                    <option value="">All Room Types</option>
+                    <option value="Deluxe" <?= $room_type_filter === 'Deluxe' ? 'selected' : ''; ?>>Deluxe</option>
+                    <option value="Standard" <?= $room_type_filter === 'Standard' ? 'selected' : ''; ?>>Standard</option>
+                    <option value="Suite" <?= $room_type_filter === 'Suite' ? 'selected' : ''; ?>>Suite</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary">Filter</button>
+                <a href="rooms.php" class="btn btn-secondary">Reset</a>
+            </div>
+        </form>
+
+        <!-- Room Table -->
         <table class="table table-bordered">
             <thead>
                 <tr>
-                    <!-- <th>ID</th> -->
                     <th>Image</th>
                     <th>Name</th>
                     <th>Room Number</th>
                     <th>Room Type</th>
                     <th>Price</th>
                     <th>Capacity</th>
-                    <th>Status</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <?php while ($row = mysqli_fetch_assoc($result)): ?>
+                <?php if (mysqli_num_rows($result) > 0): ?>
+                    <?php while ($row = mysqli_fetch_assoc($result)): ?>
+                        <tr>
+                            <td>
+                                <?php
+                                $images = explode(',', $row['images']);
+                                echo "<img src='$images[0]' width='100' alt='Room Image' class='me-2'>";
+                                ?>
+                            </td>
+                            <td><?= htmlspecialchars($row['name']); ?></td>
+                            <td><?= htmlspecialchars($row['room_number']); ?></td>
+                            <td><?= htmlspecialchars($row['room_type']); ?></td>
+                            <td>₱<?= number_format($row['price'], 2); ?></td>
+                            <td><?= htmlspecialchars($row['capacity']); ?></td>
+                            <td>
+                                <a href="?delete=<?= $row['id']; ?>" class="btn btn-danger btn-sm">Delete</a>
+                            </td>
+                        </tr>
+                    <?php endwhile; ?>
+                <?php else: ?>
                     <tr>
-                        <!-- <td><?= $row['id']; ?></td> -->
-                        <td>
-                            <?php
-                            $images = explode(',', $row['images']);
-                            echo "<img src='$images[0]' width='100' alt='Room Image' class='me-2'>";
-                            ?>
-                        </td>
-                        <td><?= $row['name']; ?></td>
-                        <td><?= $row['room_number']; ?></td>
-                        <td><?= $row['room_type']; ?></td>
-                        <td><?= $row['price']; ?></td>
-                        <td><?= $row['status']; ?></td>
-                        <td><?= $row['capacity']; ?></td>
-                        <!-- <td><?= $row['amenities']; ?></td> -->
-                        
-                        <td>
-                            <!-- <a href="javascript:void(0);" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#roomModal" onclick="editRoom(<?= $row['id']; ?>)">Edit</a> -->
-                            <a href="?delete=<?= $row['id']; ?>" class="btn btn-danger btn-sm">Delete</a>
-                        </td>
+                        <td colspan="7" class="text-center">No rooms found.</td>
                     </tr>
-                <?php endwhile; ?>
+                <?php endif; ?>
             </tbody>
         </table>
     </div>
