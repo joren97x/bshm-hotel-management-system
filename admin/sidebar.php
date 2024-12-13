@@ -71,7 +71,7 @@ if (isset($_GET['logout'])) {
         <a class="nav-link" href="./facilities.php">Facilities</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="./generate_report.php">Generate Report</a>
+        <a class="nav-link" href="./contact_submissions.php">Contact Submissions</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="?logout=true">Logout</a>

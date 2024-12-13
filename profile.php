@@ -10,7 +10,7 @@ $user_result = mysqli_query($conn, $user_query);
 $user = mysqli_fetch_assoc($user_result);
 
 // Fetch user bookings
-$bookings_query = "SELECT b.id, b.code, r.name, r.room_type, r.room_number AS room_name, b.check_in, b.check_out, b.status, b.total_price 
+$bookings_query = "SELECT b.id, b.code, r.name, r.room_type, r.room_number AS room_name, b.check_in, b.check_out, b.guests, b.status, b.total_price 
                    FROM bookings b 
                    JOIN rooms r ON b.room_id = r.id 
                    WHERE b.user_id = $user_id";
@@ -119,6 +119,7 @@ $bookings_result = mysqli_query($conn, $bookings_query);
                 <p><strong>Check-In:</strong> <span id="checkIn"></span></p>
                 <p><strong>Check-Out:</strong> <span id="checkOut"></span></p>
                 <p><strong>Status:</strong> <span id="status"></span></p>
+                <p><strong>Guests:</strong> <span id="guests"></span></p>
                 <p><strong>Booking Code:</strong> <span id="bookingCode"></span></p>
                 <p><strong>Total Price:</strong> ₱<span id="totalPrice"></span></p>
             </div>
@@ -144,6 +145,7 @@ $bookings_result = mysqli_query($conn, $bookings_query);
         document.getElementById('checkIn').textContent = formatDate(booking.check_in);
         document.getElementById('checkOut').textContent = formatDate(booking.check_out);
         document.getElementById('status').textContent = booking.status;
+        document.getElementById('guests').textContent = booking.guests;
         document.getElementById('bookingCode').textContent = booking.code;
         document.getElementById('totalPrice').textContent = booking.total_price;
     }

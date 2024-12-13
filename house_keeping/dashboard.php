@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['room_id'], $_POST['st
     $room_id = (int)$_POST['room_id'];
     $status = mysqli_real_escape_string($conn, $_POST['status']);
 
-    $update_query = "UPDATE rooms SET status = '$status' WHERE id = $room_id";
+    $update_query = "UPDATE rooms SET cleanliness_status = '$status' WHERE id = $room_id";
     if (mysqli_query($conn, $update_query)) {
         $_SESSION['success'] = "Room status updated successfully!";
     } else {
@@ -69,6 +69,9 @@ if (isset($_GET['logout'])) {
         .status-badge.not-available {
             background-color: #6c757d !important;
         }
+        .status-badge.dirty {
+            background-color: #6c757d !important;
+        }
     </style>
 </head>
 
@@ -108,7 +111,11 @@ if (isset($_GET['logout'])) {
                     <option value="">All Room Types</option>
                     <option value="Superior" <?php echo $type_filter == 'Superior' ? 'selected' : ''; ?>>Superior</option>
                     <option value="Deluxe" <?php echo $type_filter == 'Deluxe' ? 'selected' : ''; ?>>Deluxe</option>
-                    <option value="Standard" <?php echo $type_filter == 'Standard' ? 'selected' : ''; ?>>Standard</option>
+                    <option value="Standard
+                    3" <?php echo $type_filter == 'Standard
+                    3' ? 'selected' : ''; ?>>Standard
+                        3
+                    </option>
                 </select>
             </div>
             <div>
@@ -135,30 +142,22 @@ if (isset($_GET['logout'])) {
                         <td><?php echo htmlspecialchars($room['name']); ?></td>
                         <td><?php echo htmlspecialchars($room['room_type']); ?></td>
                         <td>
-                            <span class="badge status-badge <?php echo str_replace(' ', '-', $room['status']); ?>">
-                                <?php echo htmlspecialchars($room['status']); ?>
-                            </span>
-                        </td>
+                <?php if ($room['cleanliness_status'] == 'clean'): ?>
+                    <span class="badge bg-success">Clean</span>
+                <?php elseif ($room['cleanliness_status'] == 'dirty'): ?>
+                    <span class="badge bg-danger">Dirty</span>
+                <?php elseif ($room['cleanliness_status'] == 'occupied'): ?>
+                    <span class="badge bg-warning">Occupied</span>
+                <?php endif; ?>
+            </td>
                         <td>
                             <!-- Buttons for Updating Room Status -->
-                            <?php if ($room['status'] !== 'vacant'): ?>
+                            <?php if ($room['cleanliness_status'] == 'dirty'): ?>
                                 <form method="POST" style="display: inline-block;">
                                     <input type="hidden" name="room_id" value="<?php echo $room['id']; ?>">
-                                    <button type="submit" name="status" value="vacant" class="btn btn-success btn-sm">Mark Vacant</button>
+                                    <button type="submit" name="status" value="clean" class="btn btn-success btn-sm">Mark as Cleaned</button>
                                 </form>
-                            <?php endif; ?>
-                            <!-- <?php if ($room['status'] !== 'not available'): ?>
-                                <form method="POST" style="display: inline-block;">
-                                    <input type="hidden" name="room_id" value="<?php echo $room['id']; ?>">
-                                    <button type="submit" name="status" value="not available" class="btn btn-secondary btn-sm">Mark Not Available</button>
-                                </form>
-                            <?php endif; ?>
-                            <?php if ($room['status'] !== 'occupied'): ?>
-                                <form method="POST" style="display: inline-block;">
-                                    <input type="hidden" name="room_id" value="<?php echo $room['id']; ?>">
-                                    <button type="submit" name="status" value="occupied" class="btn btn-warning btn-sm">Mark Occupied</button>
-                                </form>
-                            <?php endif; ?> -->
+                            <?php endif; ?> 
                         </td>
                     </tr>
                 <?php endwhile; ?>

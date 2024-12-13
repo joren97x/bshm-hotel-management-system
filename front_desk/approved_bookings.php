@@ -9,7 +9,7 @@ $searchTerm = isset($_POST['search']) ? $_POST['search'] : '';
 $query = "
     SELECT 
         bookings.*, 
-        IF(users.id IS NULL OR bookings.user_id = 0, 'Manual Booking', CONCAT(users.first_name, ' ', users.last_name)) AS full_name,
+        IF(users.id IS NULL OR bookings.user_id = 0, bookings.name, CONCAT(users.first_name, ' ', users.last_name)) AS full_name,
         rooms.name AS room_name, 
         rooms.room_type, 
         rooms.room_number
@@ -18,6 +18,7 @@ $query = "
     JOIN rooms ON bookings.room_id = rooms.id
     WHERE bookings.status IN ('approved', 'checked_in', 'checked_out')
 ";
+
 
 // Add search condition if a search term is provided
 if (!empty($searchTerm)) {
@@ -45,6 +46,30 @@ $result = mysqli_stmt_get_result($stmt);
 if (!$result) {
     die("Query failed: " . mysqli_error($conn));
 }
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_booking'])) {
+    $booking_id = (int)$_POST['booking_id_hidden'];  // Accessing the hidden input value
+
+    // Update the booking status to 'cancelled'
+    $cancel_booking_sql = "UPDATE bookings SET status = 'cancelled' WHERE id = ?";
+    $stmt = $conn->prepare($cancel_booking_sql);
+    $stmt->bind_param('i', $booking_id);
+
+    echo $booking_id;  // Echoing booking ID to check in console
+    echo $_POST['booking_id_hidden'];  // Check if POST data matches the expected ID
+    echo 'hii';
+    if ($stmt->execute()) {
+        $_SESSION['success'] = 'Booking cancelled successfully.';
+        header('Location: approved_bookings.php');
+        exit();
+    } else {
+        $_SESSION['errors'][] = 'Failed to cancel the booking.';
+    }
+}
+
+
+
 ?>
 
 <body>
@@ -66,10 +91,12 @@ if (!$result) {
                     <th>Name</th>
                     <th>Room Number</th>
                     <th>Room Type</th>
+                    <th>Guests</th>
                     <th>Arrival</th>
                     <th>Departure</th>
                     <th>Code</th>
                     <th>Status</th>
+                    <th>Type</th>
                     <th>Actions</th> <!-- Added Actions column for buttons -->
                 </tr>
             </thead>
@@ -79,36 +106,56 @@ if (!$result) {
                         <td><?php echo $row['full_name']; ?></td>
                         <td><?php echo $row['room_number']; ?></td>
                         <td><?php echo htmlspecialchars($row['room_type']); ?></td>
-                        <td><?php echo $row['check_in']; ?></td>
-                        <td><?php echo htmlspecialchars($row['check_out']); ?></td>
+                        <td><?php echo htmlspecialchars($row['guests']); ?></td>
+                        <td>
+                            <?php
+                            $check_in = new DateTime($row['check_in']);
+                            echo $check_in->format('D, M j, Y \a\t g A'); // e.g., "Wed, Dec 2, 2024 at 5 PM"
+                            ?>
+                        </td>
+                        <td>
+                            <?php
+                            $check_out = new DateTime($row['check_out']);
+                            echo $check_out->format('D, M j, Y'); // e.g., "Thu, Dec 3, 2024 at 10 AM"
+                            ?>
+                        </td>
                         <td><?php echo htmlspecialchars($row['code']); ?></td>
                         <td><?php echo htmlspecialchars($row['status']); ?></td>
+                        <td><?php echo htmlspecialchars($row['booking_type']); ?></td>
                         <td>
-                            <!-- Check-in Button -->
-                            <?php if ($row['status'] == 'approved'): ?>
+                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#viewDetailsModal" onclick="viewBooking(<?php echo $row['id']; ?>)">View</button>
+                            <?php
+                            $today = date('Y-m-d');
+                            $checkInDate = substr($row['check_in'], 0, 10); // Extract date portion (YYYY-MM-DD)
+                            // Show the Check-in button only if the status is 'approved' and the check-in date is today or in the future
+                            if ($row['status'] == 'approved' && $checkInDate == $today):
+                            ?>
                                 <button type="button" class="btn btn-success"
                                     data-bs-toggle="modal" data-bs-target="#actionModal"
                                     onclick="showModal(<?php echo $row['id']; ?>, 'check_in')">Check In</button>
+                            <?php elseif ($checkInDate < $today): ?>
+                                <!-- Cancel Booking Button (Only if Checked In) -->
+                                <button type="button" class="btn btn-danger"
+                                    data-bs-toggle="modal" data-bs-target="#cancelModal"
+                                    onclick="showCancelModal(<?php echo $row['id']; ?>, 'cancel')">Cancel</button>
                             <?php elseif ($row['status'] == 'checked_in'): ?>
                                 <!-- Check-out Button (Only if Checked In) -->
                                 <button type="button" class="btn btn-danger"
                                     data-bs-toggle="modal" data-bs-target="#actionModal"
-                                    onclick="showModal(<?php echo $row['id']; ?>, 'check_out')">
-                                    
-                                    Check Out</button>
+                                    onclick="showModal(<?php echo $row['id']; ?>, 'check_out')">Check Out</button>
                             <?php elseif ($row['status'] == 'checked_out'): ?>
-                                <!-- Check-out Button (Only if Checked In) -->
+                                <!-- Payment Button -->
                                 <button type="button" class="btn btn-info"
-                                    data-bs-toggle="modal" 
+                                    data-bs-toggle="modal"
                                     data-bs-target="#paymentModal"
-                                    onclick="showPaymentModal(<?php echo htmlspecialchars(json_encode($row)); ?>)">
-                                    Payment
-                                </button>
+                                    onclick="showPaymentModal(<?php echo htmlspecialchars(json_encode($row)); ?>)">Payment</button>
                             <?php endif; ?>
                         </td>
+
                     </tr>
                 <?php endwhile; ?>
             </tbody>
+
         </table>
     </div>
 
@@ -161,7 +208,135 @@ if (!$result) {
     </div>
 </body>
 
+<!-- Modal for Cancel Booking -->
+<div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cancelModalLabel">Cancel Booking</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to cancel this booking?</p>
+                <input type="hidden" name="booking_id" id="booking_id">
+                <div id="booking_id_display"></div> <!-- This is to display the booking ID for confirmation purposes -->
+            </div>
+            <div class="modal-footer">
+                <form method="POST" action="cancel_booking.php">
+                    <input type="hidden" name="booking_id_hidden" id="booking_id_hidden">
+                    <button type="submit" name="cancel_booking" class="btn btn-danger">Cancel Booking</button>
+                </form>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+
+<!-- Modal for displaying booking details -->
+<div class="modal fade" id="viewDetailsModal" tabindex="-1" aria-labelledby="viewDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewDetailsModalLabel">Booking Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Loader -->
+                <div id="modal-loader" class="text-center py-3">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+                
+                <!-- Booking details -->
+                <div id="modal-details" style="display: none;">
+                    <div class="row mb-2">
+                        <div class="col-6"><strong>Name:</strong></div>
+                        <div class="col-6" id="modal-name">N/A</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6"><strong>Email:</strong></div>
+                        <div class="col-6" id="modal-email">N/A</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6"><strong>Contact:</strong></div>
+                        <div class="col-6" id="modal-contact">N/A</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6"><strong>Address:</strong></div>
+                        <div class="col-6" id="modal-address">N/A</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6"><strong>Check-In:</strong></div>
+                        <div class="col-6" id="modal-check-in">N/A</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6"><strong>Check-Out:</strong></div>
+                        <div class="col-6" id="modal-check-out">N/A</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6"><strong>Total Price:</strong></div>
+                        <div class="col-6" id="modal-total-price">N/A</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6"><strong>Guests:</strong></div>
+                        <div class="col-6" id="modal-guests">N/A</div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-6"><strong>Booking Code:</strong></div>
+                        <div class="col-6" id="modal-code">N/A</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6"><strong>Booking Type:</strong></div>
+                        <div class="col-6" id="modal-booking-type">N/A</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
+    function viewBooking(bookingId) {
+        // Show loader
+        document.getElementById('modal-loader').style.display = 'block';
+        document.getElementById('modal-details').style.display = 'none';
+
+        // Fetch booking details
+        fetch(`get_booking_details.php?id=${bookingId}`)
+            .then(response => response.json())
+            .then(data => {
+                // Populate modal fields
+                document.getElementById('modal-name').textContent = data.full_name || 'N/A';
+                document.getElementById('modal-email').textContent = data.email || 'N/A';
+                document.getElementById('modal-contact').textContent = data.contact || 'N/A';
+                document.getElementById('modal-address').textContent = data.address || 'N/A';
+                document.getElementById('modal-check-in').textContent = new Date(data.check_in).toLocaleString() || 'N/A';
+                document.getElementById('modal-check-out').textContent = new Date(data.check_out).toLocaleString() || 'N/A';
+                document.getElementById('modal-total-price').textContent = `$${data.total_price || '0.00'}`;
+                document.getElementById('modal-guests').textContent = data.guests || 'N/A';
+                document.getElementById('modal-code').textContent = data.code || 'N/A';
+                document.getElementById('modal-booking-type').textContent = data.booking_type || 'N/A';
+
+                // Hide loader and show details
+                document.getElementById('modal-loader').style.display = 'none';
+                document.getElementById('modal-details').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error fetching booking details:', error);
+                alert('Failed to load booking details. Please try again later.');
+                document.getElementById('modal-loader').style.display = 'none';
+            });
+    }
+    function showCancelModal(bookingId) {
+        document.getElementById('booking_id_hidden').value = bookingId;
+        document.getElementById('booking_id_display').textContent = `Booking ID: ${bookingId}`;
+    }
     // JavaScript to handle the modal and form submission
     function showModal(booking_id, action) {
         // Set the action and booking ID dynamically
