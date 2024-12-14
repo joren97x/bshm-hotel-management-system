@@ -13,7 +13,8 @@ $user = mysqli_fetch_assoc($user_result);
 $bookings_query = "SELECT b.id, b.code, r.name, r.room_type, r.room_number AS room_name, b.check_in, b.check_out, b.guests, b.status, b.total_price 
                    FROM bookings b 
                    JOIN rooms r ON b.room_id = r.id 
-                   WHERE b.user_id = $user_id";
+                   WHERE b.user_id = $user_id
+                   ORDER BY b.created_at DESC" ;
 $bookings_result = mysqli_query($conn, $bookings_query);
 ?>
 
@@ -133,9 +134,27 @@ $bookings_result = mysqli_query($conn, $bookings_query);
 <script>
     // Format date to a more readable format
     function formatDate(dateString) {
-        const options = { year: 'numeric', month: 'long', day: 'numeric' }; // Customize the format here
+        const options = { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric', 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            hour12: true // Use 12-hour format with AM/PM
+        };
         const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', options);
+        return date.toLocaleString('en-US', options); // Use toLocaleString for date and time
+    }
+
+    function formatCheckoutDate(dateString) {
+        const options = { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric', 
+            hour12: true // Use 12-hour format with AM/PM
+        };
+        const date = new Date(dateString);
+        return date.toLocaleString('en-US', options); // Use toLocaleString for date and time
     }
 
     // Populate modal with booking details
@@ -143,7 +162,7 @@ $bookings_result = mysqli_query($conn, $bookings_query);
         document.getElementById('roomNumber').textContent = booking.room_name;
         document.getElementById('roomType').textContent = booking.room_type;
         document.getElementById('checkIn').textContent = formatDate(booking.check_in);
-        document.getElementById('checkOut').textContent = formatDate(booking.check_out);
+        document.getElementById('checkOut').textContent = formatCheckoutDate(booking.check_out);
         document.getElementById('status').textContent = booking.status;
         document.getElementById('guests').textContent = booking.guests;
         document.getElementById('bookingCode').textContent = booking.code;

@@ -77,6 +77,19 @@ $stmt->bind_param('ississsisssss', $room_id, $name, $contact, $total_price, $gen
 
             $stmt->execute();
         }
+        echo "
+    <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+    <script>
+        Swal.fire({
+            title: 'Success!',
+            text: 'Bookings created successfully',
+            icon: 'success',
+            confirmButtonText: 'OK'
+        }).then(() => {
+            window.location.href = 'reservations.php';
+        });
+    </script>
+";
         // echo "<script>alert('Bookings created successfully'); window.location.href = 'reservations.php';</script>";
     }
 }
@@ -84,7 +97,7 @@ $stmt->bind_param('ississsisssss', $room_id, $name, $contact, $total_price, $gen
 
 
 
-$default_room_type = 'Superior';
+$default_room_type = 'Standard';
 $default_price_sql = "SELECT price, capacity FROM rooms WHERE room_type = ? LIMIT 1";
 $stmt = $conn->prepare($default_price_sql);
 $stmt->bind_param('s', $default_room_type);

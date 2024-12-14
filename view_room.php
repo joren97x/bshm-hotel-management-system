@@ -17,6 +17,7 @@
         $room_price = $row['price'];
         $room_description = $row['description'];
         $room_amenities = $row['amenities'];
+        $capacity = $row['capacity'];
         $images = explode(',', $row['images']); // Assuming images are stored as a comma-separated string
     } else {
         echo "Room not found.";
@@ -35,7 +36,6 @@
         $user = mysqli_fetch_assoc($user_result);
 
         // Check if any required field is null
-        if (is_null($user['age'])) $missing_data[] = 'age';
         if (is_null($user['birthdate'])) $missing_data[] = 'birthdate';
         if (is_null($user['gender'])) $missing_data[] = 'gender';
         if (is_null($user['address'])) $missing_data[] = 'address';
@@ -210,7 +210,7 @@
                         <div class="row">
                             <div class="mb-3 col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
                                 <label for="checkIn" class="form-label">Check-in</label>
-                                <input type="date" class="form-control" id="checkIn" name="check_in" required>
+                                <input type="datetime-local" class="form-control" id="checkIn" name="check_in" required>
                                 <input type="hidden" id="roomType" value="<?php echo $room_type; ?>">
                             </div>
                             <div class="mb-3 col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
@@ -220,12 +220,18 @@
                             <div class="mb-3 col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
                                 <label for="guests" class="form-label">Guests</label>
                                 <select class="form-select" id="guests" name="guests">
-                                    <option value="1">1 guest</option>
-                                    <option value="2">2 guests</option>
-                                    <option value="3">3 guests</option>
-                                    <option value="4">4 guests</option>
+                                    <?php 
+                                    for ($i = 1; $i <= $capacity; $i++): 
+                                    ?>
+                                        <option value="<?php echo $i; ?>">
+                                            <?php echo $i . ($i === 1 ? ' guest' : ' guests'); ?>
+                                        </option>
+                                    <?php 
+                                    endfor; 
+                                    ?>
                                 </select>
                             </div>
+
                             <div class="mb-3 col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
                                 <label for="number_of_rooms" class="form-label">No. of Rooms</label>
                                 <select class="form-select" id="number_of_rooms" name="number_of_rooms" required>
@@ -329,12 +335,6 @@
                     }
                     ?>
                     <p>Please fill in the missing details to proceed:</p>
-                    <?php if (in_array('age', $missing_data)): ?>
-                        <div class="mb-3">
-                            <label for="age" class="form-label">Age</label>
-                            <input type="number" class="form-control" id="age" name="age" required>
-                        </div>
-                    <?php endif; ?>
                     <?php if (in_array('birthdate', $missing_data)): ?>
                         <div class="mb-3">
                             <label for="birthdate" class="form-label">Birthdate</label>

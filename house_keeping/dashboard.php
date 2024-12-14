@@ -3,14 +3,14 @@ session_start();
 include '../config.php'; // Database connection
 
 // Initialize filters
-$status_filter = isset($_GET['status']) ? $_GET['status'] : '';
+$status_filter = isset($_GET['cleanliness_status']) ? $_GET['cleanliness_status'] : '';
 $type_filter = isset($_GET['type']) ? $_GET['type'] : '';
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 
 // Fetch rooms with filters and search
 $rooms_query = "SELECT * FROM rooms WHERE 1=1";
 if (!empty($status_filter)) {
-    $rooms_query .= " AND status = '" . mysqli_real_escape_string($conn, $status_filter) . "'";
+    $rooms_query .= " AND cleanliness_status = '" . mysqli_real_escape_string($conn, $status_filter) . "'";
 }
 if (!empty($type_filter)) {
     $rooms_query .= " AND room_type = '" . mysqli_real_escape_string($conn, $type_filter) . "'";
@@ -100,21 +100,18 @@ if (isset($_GET['logout'])) {
         <!-- Filters -->
         <form class="filter-form mb-4 d-flex justify-content-between" method="GET">
             <div>
-                <select name="status" class="form-select" style="width: 200px; display: inline-block;">
+                <select name="cleanliness_status" class="form-select" style="width: 200px; display: inline-block;">
                     <option value="">All Status</option>
-                    <option value="vacant" <?php echo $status_filter == 'vacant' ? 'selected' : ''; ?>>Vacant</option>
-                    <option value="occupied" <?php echo $status_filter == 'occupied' ? 'selected' : ''; ?>>Occupied</option>
-                    <option value="not available" <?php echo $status_filter == 'not available' ? 'selected' : ''; ?>>Not Available</option>
+                    <option value="clean" <?php echo $status_filter == 'clean' ? 'selected' : ''; ?>>Vacant</option>
+                    <!-- <option value="occupied" <?php echo $status_filter == 'occupied' ? 'selected' : ''; ?>>Occupied</option> -->
+                    <option value="dirty" <?php echo $status_filter == 'dirty' ? 'selected' : ''; ?>>Not Available</option>
                 </select>
 
                 <select name="type" class="form-select" style="width: 200px; display: inline-block;">
                     <option value="">All Room Types</option>
                     <option value="Superior" <?php echo $type_filter == 'Superior' ? 'selected' : ''; ?>>Superior</option>
                     <option value="Deluxe" <?php echo $type_filter == 'Deluxe' ? 'selected' : ''; ?>>Deluxe</option>
-                    <option value="Standard
-                    3" <?php echo $type_filter == 'Standard
-                    3' ? 'selected' : ''; ?>>Standard
-                        3
+                    <option value="Standard" <?php echo $type_filter == 'Standard' ? 'selected' : ''; ?>>Standard
                     </option>
                 </select>
             </div>

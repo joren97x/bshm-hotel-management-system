@@ -4,28 +4,29 @@ include 'navbar.php';
 ?>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
         }
 
         .contact-header {
             background: url('./uploads/contact-bg.jpg') no-repeat center center/cover;
             color: white;
             text-align: center;
-            padding: 50px 0;
+            padding: 60px 0;
         }
 
         .contact-header h1 {
-            font-size: 3rem;
+            font-size: 3.5rem;
             font-weight: bold;
+            margin-bottom: 15px;
         }
 
         .contact-header p {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             margin-top: 10px;
         }
 
         .form-section {
-            padding: 50px 0;
+            padding: 60px 0;
         }
 
         .info-card {
@@ -36,13 +37,37 @@ include 'navbar.php';
             border: 0;
             width: 100%;
             height: 350px;
+            margin-top: 20px;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .form-control {
+            border-radius: 8px;
+            box-shadow: none;
+            margin-bottom: 20px;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1rem;
+            border-radius: 8px;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
         }
     </style>
 
 <!-- Header Section -->
 <div class="contact-header">
     <h1>Contact Us</h1>
-    <p>We'd love to hear from you! Reach out with any questions or inquiries.</p>
+    <p>We'd love to hear from you! Reach out with any questions, inquiries, or requests for assistance.</p>
 </div>
 
 <div class="container form-section">
@@ -50,6 +75,7 @@ include 'navbar.php';
         <!-- Contact Form -->
         <div class="col-md-6">
             <h2>Get in Touch</h2>
+            <p>Have a question or need assistance? We're here to help! Fill out the form below, and one of our team members will respond shortly.</p>
             <form action="process_contact_form.php" method="POST">
                 <div class="mb-3">
                     <label for="name" class="form-label">Full Name</label>
@@ -70,9 +96,11 @@ include 'navbar.php';
         <!-- Contact Information -->
         <div class="col-md-6">
             <h2>Our Location</h2>
+            <p>We are conveniently located in the beautiful and vibrant "Cordova, Cebu City". Visit us or get in touch with the details below:</p>
+
             <div class="card info-card p-3 mb-4">
                 <h5 class="card-title">Address</h5>
-                <p class="card-text">123 Luxury Lane, Paradise City, Dreamland 45678</p>
+                <p class="card-text">Gabi, Cordova, Cebu City, Philippines</p>
             </div>
             <div class="card info-card p-3 mb-4">
                 <h5 class="card-title">Phone</h5>
@@ -80,10 +108,12 @@ include 'navbar.php';
             </div>
             <div class="card info-card p-3 mb-4">
                 <h5 class="card-title">Email</h5>
-                <p class="card-text">info@luxuryhotel.com</p>
+                <p class="card-text">info@cpchotels.com</p>
             </div>
+
+            <!-- Google Map for Cordova, Cebu City -->
             <iframe 
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3151.835434508616!2d144.9630579156717!3d-37.8141079797517!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ad642af0f11fd81%3A0xf4c0234457d7a951!2s123%20Luxury%20Lane%2C%20Paradise%20City%2C%20Dreamland!5e0!3m2!1sen!2sus!4v1614211129014!5m2!1sen!2sus" 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3916.7591638983467!2d123.93263221478964!3d10.295130092152858!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x33aa6a49b79ff45b%3A0x12a02b3881781b0a!2sCordova%2C%20Cebu%2C%20Philippines!5e0!3m2!1sen!2sus!4v1614212124135!5m2!1sen!2sus" 
                 allowfullscreen=""
                 loading="lazy"></iframe>
         </div>

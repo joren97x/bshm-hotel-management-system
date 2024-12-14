@@ -40,24 +40,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search_rooms'])) {
 }
 
 ?>
-
+<div class="container mt-5">
 <form method="POST">
         <div class="row">
             <div class="col-md-4 mb-3">
                 <label for="start_date" class="form-label">Start Date</label>
-                <input type="date" class="form-control" id="start_date" name="start_date" required>
+                <!-- Pre-fill the field with the previously searched value -->
+                <input type="date" class="form-control" id="start_date" name="start_date" 
+                    value="<?php echo isset($_POST['start_date']) ? htmlspecialchars($_POST['start_date']) : ''; ?>" 
+                    required>
             </div>
             <div class="col-md-4 mb-3">
                 <label for="end_date" class="form-label">End Date</label>
-                <input type="date" class="form-control" id="end_date" name="end_date" required>
+                <!-- Pre-fill the field with the previously searched value -->
+                <input type="date" class="form-control" id="end_date" name="end_date" 
+                    value="<?php echo isset($_POST['end_date']) ? htmlspecialchars($_POST['end_date']) : ''; ?>" 
+                    required>
             </div>
             <div class="col-md-4 mb-3">
                 <label for="room_type" class="form-label">Room Type</label>
                 <select class="form-select" id="room_type" name="room_type">
                     <option value="">-- All Room Types --</option>
-                    <option value="Superior">Superior</option>
-                    <option value="Deluxe">Deluxe</option>
-                    <option value="Standard">Standard</option>
+                    <option value="Superior" 
+                        <?php echo (isset($_POST['room_type']) && $_POST['room_type'] === 'Superior') ? 'selected' : ''; ?>>
+                        Superior
+                    </option>
+                    <option value="Deluxe" 
+                        <?php echo (isset($_POST['room_type']) && $_POST['room_type'] === 'Deluxe') ? 'selected' : ''; ?>>
+                        Deluxe
+                    </option>
+                    <option value="Standard" 
+                        <?php echo (isset($_POST['room_type']) && $_POST['room_type'] === 'Standard') ? 'selected' : ''; ?>>
+                        Standard
+                    </option>
                     <!-- Add other room types as needed -->
                 </select>
             </div>
@@ -91,3 +106,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['search_rooms'])) {
     <?php elseif ($_SERVER['REQUEST_METHOD'] === 'POST'): ?>
         <div class="alert alert-warning mt-4">No available rooms found for the selected criteria.</div>
     <?php endif; ?>
+    </div>
+</div>

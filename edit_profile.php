@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     $birthdate = trim($_POST['birthdate']);
     $address = trim($_POST['address']);
     $gender = trim($_POST['gender']);
-
+    echo $gender;
     $update_query = "UPDATE users SET 
     first_name = '$first_name', 
     last_name = '$last_name', 
@@ -23,10 +23,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     gender = '$gender', 
     email = '$email' WHERE id = $user_id";
     if (mysqli_query($conn, $update_query)) {
-        $_SESSION['success'] = "Profile updated successfully!";
-        $_SESSION['user']['first_name'] = $first_name;
-        $_SESSION['user']['last_name'] = $last_name;
-        $_SESSION['user']['email'] = $email;
+        $fetch_user_query = "SELECT * FROM users WHERE id = $user_id";
+        $result = mysqli_query($conn, $fetch_user_query);
+        
+        if ($result && mysqli_num_rows($result) > 0) {
+            // var_dump(mysqli_fetch_assoc($result));
+            $_SESSION['user'] = mysqli_fetch_assoc($result); // Update session with latest user data
+            $_SESSION['success'] = "Profile updated successfully!";
+        } else {
+            $_SESSION['error'] = "Error fetching updated user data.";
+        }
     } else {
         $_SESSION['error'] = "Error updating profile: " . mysqli_error($conn);
     }
@@ -115,11 +121,10 @@ $user = mysqli_fetch_assoc($user_result);
             </div>
             <div class="mb-3 col-xs-12 col-sm-6 col-md-6 col-lg-6 col-xl-6">
                 <label for="gender" class="form-label">Gender</label>
-                <!-- <input class="form-control" id="gender" name="gender" value="<?php echo htmlspecialchars($user['gender']); ?>" required> -->
-                <select class="form-select" id="gender" name="gender" required value="<?php echo htmlspecialchars($user['gender']); ?>">
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
+                <select class="form-select" id="gender" name="gender" required>
+                    <option value="male" <?php echo ($user['gender'] === 'male') ? 'selected' : ''; ?>>Male</option>
+                    <option value="female" <?php echo ($user['gender'] === 'female') ? 'selected' : ''; ?>>Female</option>
+                    <option value="other" <?php echo ($user['gender'] === 'other') ? 'selected' : ''; ?>>Other</option>
                 </select>
             </div>
         </div>

@@ -59,104 +59,197 @@ while ($row = mysqli_fetch_assoc($salesResult)) {
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <div class="container mt-5">
-        <h2>Dashboard</h2>
-        
-        <!-- Room Statistics Chart -->
-        <canvas id="roomChart"></canvas>
-        
-        <!-- Booking Status Chart -->
-        <canvas id="bookingStatusChart" class="mt-5"></canvas>
-        
-        <!-- Sales Charts -->
-        <h4 class="mt-5">Sales Statistics</h4>
-        <canvas id="weeklySalesChart"></canvas>
-        <canvas id="monthlySalesChart" class="mt-5"></canvas>
-        <canvas id="yearlySalesChart" class="mt-5"></canvas>
+<div class="container mt-5">
+<h1 class="text-center mb-4">Admin Dashboard</h1>
+
+<div class="row mb-5">
+    <!-- Total Users -->
+    <!-- <div class="col-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h5>Total Users</h5>
+                <h3><?php echo $totalUsers; ?></h3>
+            </div>
+        </div>
+    </div> -->
+
+    <!-- Total Rooms -->
+    <div class="col-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5>Total Rooms</h5>
+                <h3>
+                    <?php 
+                        echo array_sum($roomCounts); // Sum of all rooms
+                    ?>
+                </h3>
+            </div>
+        </div>
     </div>
 
-    <script>
-        // Room Statistics Data
-        const roomData = {
-            labels: <?php echo json_encode(array_keys($roomCounts)); ?>,
-            datasets: [{
-                label: 'Total Rooms',
-                data: <?php echo json_encode(array_values($roomCounts)); ?>,
-                backgroundColor: ['#4caf50', '#2196f3', '#ff9800'], // Customize colors
-            }]
-        };
+    <!-- Total Bookings -->
+    <div class="col-3">
+        <div class="card bg-warning text-dark">
+            <div class="card-body">
+                <h5>Total Bookings</h5>
+                <h3>
+                    <?php 
+                        echo array_sum($bookingStatusCounts); // Sum of all bookings
+                    ?>
+                </h3>
+            </div>
+        </div>
+    </div>
 
-        // Booking Status Data
-        const bookingStatusData = {
-            labels: <?php echo json_encode(array_keys($bookingStatusCounts)); ?>,
-            datasets: [{
-                label: 'Total Bookings',
-                data: <?php echo json_encode(array_values($bookingStatusCounts)); ?>,
-                backgroundColor: ['#ff5722', '#03a9f4', '#8bc34a'], // Customize colors
-            }]
-        };
+    <!-- Total Sales -->
+    <div class="col-3">
+        <div class="card bg-danger text-white">
+            <div class="card-body">
+                <h5>Total Sales</h5>
+                <h3>
+                    <?php 
+                        $totalSales = array_sum($salesData['yearly']);
+                        echo number_format($totalSales, 2); // Format to 2 decimal places
+                    ?>
+                </h3>
+            </div>
+        </div>
+    </div>
+</div>
 
-        // Weekly Sales Data
-        const weeklySalesData = {
-            labels: <?php echo json_encode(array_keys($salesData['weekly'])); ?>,
-            datasets: [{
-                label: 'Weekly Sales',
-                data: <?php echo json_encode(array_values($salesData['weekly'])); ?>,
-                backgroundColor: '#673ab7', // Purple
-            }]
-        };
+    <!-- First Row: Rooms and Bookings -->
+    <div class="row">
+        <div class="col-md-6">
+            <h4 class="text-center">Room Statistics</h4>
+            <canvas id="roomChart"  style="height: 300px; max-height: 300px"></canvas>
+        </div>
+        <div class="col-md-6">
+            <h4 class="text-center">Booking Status</h4>
+            <canvas id="bookingStatusChart"></canvas>
+        </div>
+    </div>
 
-        // Monthly Sales Data
-        const monthlySalesData = {
-            labels: <?php echo json_encode(array_keys($salesData['monthly'])); ?>,
-            datasets: [{
-                label: 'Monthly Sales',
-                data: <?php echo json_encode(array_values($salesData['monthly'])); ?>,
-                backgroundColor: '#ffeb3b', // Yellow
-            }]
-        };
+    <!-- Second Row: Sales Charts -->
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <h4 class="text-center">Sales Statistics</h4>
+        </div>
+        <div class="col-md-4">
+            <h5 class="text-center">Weekly Sales</h5>
+            <canvas id="weeklySalesChart"></canvas>
+        </div>
+        <div class="col-md-4">
+            <h5 class="text-center">Monthly Sales</h5>
+            <canvas id="monthlySalesChart"></canvas>
+        </div>
+        <div class="col-md-4">
+            <h5 class="text-center">Yearly Sales</h5>
+            <canvas id="yearlySalesChart"></canvas>
+        </div>
+    </div>
+</div>
 
-        // Yearly Sales Data
-        const yearlySalesData = {
-            labels: <?php echo json_encode(array_keys($salesData['yearly'])); ?>,
-            datasets: [{
-                label: 'Yearly Sales',
-                data: <?php echo json_encode(array_values($salesData['yearly'])); ?>,
-                backgroundColor: '#e91e63', // Pink
-            }]
-        };
+<script>
+    // Room Statistics Data
+    const roomData = {
+        labels: <?php echo json_encode(array_keys($roomCounts)); ?>,
+        datasets: [{
+            label: 'Total Rooms',
+            data: <?php echo json_encode(array_values($roomCounts)); ?>,
+            backgroundColor: ['#4caf50', '#2196f3', '#ff9800', '#9c27b0'], // Colors
+            hoverOffset: 4
+        }]
+    };
 
-        // Initialize Charts
-        new Chart(document.getElementById('roomChart'), {
-            type: 'pie',
-            data: roomData
-        });
+    // Booking Status Data
+    const bookingStatusData = {
+        labels: <?php echo json_encode(array_keys($bookingStatusCounts)); ?>,
+        datasets: [{
+            label: 'Total Bookings',
+            data: <?php echo json_encode(array_values($bookingStatusCounts)); ?>,
+            backgroundColor: ['#ff5722', '#03a9f4', '#8bc34a', '#ff9800'], // Colors
+        }]
+    };
 
-        new Chart(document.getElementById('bookingStatusChart'), {
-            type: 'bar',
-            data: bookingStatusData
-        });
+    // Weekly Sales Data
+    const weeklySalesData = {
+        labels: <?php echo json_encode(array_keys($salesData['weekly'])); ?>,
+        datasets: [{
+            label: 'Weekly Sales',
+            data: <?php echo json_encode(array_values($salesData['weekly'])); ?>,
+            borderColor: '#673ab7',
+            backgroundColor: 'rgba(103, 58, 183, 0.2)',
+            borderWidth: 2,
+            fill: true
+        }]
+    };
 
-        new Chart(document.getElementById('weeklySalesChart'), {
-            type: 'line',
-            data: weeklySalesData
-        });
+    // Monthly Sales Data
+    const monthlySalesData = {
+        labels: <?php echo json_encode(array_keys($salesData['monthly'])); ?>,
+        datasets: [{
+            label: 'Monthly Sales',
+            data: <?php echo json_encode(array_values($salesData['monthly'])); ?>,
+            borderColor: '#ffeb3b',
+            backgroundColor: 'rgba(255, 235, 59, 0.2)',
+            borderWidth: 2,
+            fill: true
+        }]
+    };
 
-        new Chart(document.getElementById('monthlySalesChart'), {
-            type: 'line',
-            data: monthlySalesData
-        });
+    // Yearly Sales Data
+    const yearlySalesData = {
+        labels: <?php echo json_encode(array_keys($salesData['yearly'])); ?>,
+        datasets: [{
+            label: 'Yearly Sales',
+            data: <?php echo json_encode(array_values($salesData['yearly'])); ?>,
+            backgroundColor: '#e91e63',
+            hoverBackgroundColor: '#f06292',
+            borderWidth: 1
+        }]
+    };
 
-        new Chart(document.getElementById('yearlySalesChart'), {
-            type: 'bar',
-            data: yearlySalesData
-        });
-    </script>
+    // Initialize Charts
+    new Chart(document.getElementById('roomChart'), {
+        type: 'pie',
+        data: roomData
+    });
+
+    new Chart(document.getElementById('bookingStatusChart'), {
+        type: 'bar',
+        data: bookingStatusData,
+        options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+
+    new Chart(document.getElementById('weeklySalesChart'), {
+        type: 'line',
+        data: weeklySalesData
+    });
+
+    new Chart(document.getElementById('monthlySalesChart'), {
+        type: 'line',
+        data: monthlySalesData
+    });
+
+    new Chart(document.getElementById('yearlySalesChart'), {
+        type: 'bar',
+        data: yearlySalesData
+    });
+</script>
+
+<!-- Bootstrap 5 JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
 </body>
 </html>

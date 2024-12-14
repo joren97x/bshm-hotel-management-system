@@ -8,6 +8,64 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     exit;
 }
 
+if (isset($_POST['create'])) {
+    $name = $_POST['name'];
+    $room_type = $_POST['room_type'];
+    $price = $_POST['price'];
+    $capacity = $_POST['capacity'];
+    $amenities = $_POST['amenities'];
+    $description = $_POST['description'];
+    $no_of_rooms = $_POST['number_of_rooms'];
+    $status = 'vacant';
+    $cleanliness_status = 'clean';
+
+    // Image upload handling
+    $images = [];
+    if (isset($_FILES['images']) && count($_FILES['images']['name']) == 5) {
+        for ($i = 0; $i < 5; $i++) {
+            $imageName = time() . '_' . $_FILES['images']['name'][$i];
+            $imagePath = '../uploads/' . $imageName;
+            move_uploaded_file($_FILES['images']['tmp_name'][$i], $imagePath);
+            $images[] = $imagePath;
+        }
+    } else {
+        $_SESSION['error'] = "You must upload exactly 5 images.";
+        header("Location: rooms.php");
+        exit;
+    }
+
+    // Save the image paths (separated by commas)
+    $imagePaths = implode(',', $images);
+
+    // Get the last room number from the database
+    $lastRoomNumber = 3000; // Default start number
+    $result = mysqli_query($conn, "SELECT room_number FROM rooms ORDER BY id DESC LIMIT 1");
+    if ($result && mysqli_num_rows($result) > 0) {
+        $row = mysqli_fetch_assoc($result);
+        $lastRoomNumber += (int)$row['room_number']; // Get the last room number
+    }
+
+    // Create rooms based on the number of rooms specified
+    for ($i = 1; $i <= $no_of_rooms; $i++) {
+        $newRoomNumber = $lastRoomNumber + $i; // Increment room number
+
+        // Insert into the database
+        $sql = "INSERT INTO rooms (room_number, name, room_type, price, capacity, amenities, description, images, status, cleanliness_status) 
+                VALUES ('$newRoomNumber', '$name', '$room_type', '$price', '$capacity', '$amenities', '$description', '$imagePaths', '$status', '$cleanliness_status')";
+        
+        if (!mysqli_query($conn, $sql)) {
+            $_SESSION['error'] = "Error creating room: " . mysqli_error($conn);
+            header("Location: rooms.php");
+            exit;
+        }
+    }
+
+    $_SESSION['success'] = "$no_of_rooms room(s) created successfully!";
+    header("Location: rooms.php");
+    exit;
+}
+
+
 // Handle room update
 if (isset($_POST['update'])) {
     $id = $_POST['id'];
@@ -100,7 +158,24 @@ $result = mysqli_query($conn, $sql);
         <?php elseif (isset($_SESSION['error'])): ?>
             <div class="alert alert-danger"><?= $_SESSION['error']; unset($_SESSION['error']); ?></div>
         <?php endif; ?>
-
+        <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#roomModal">Add New Room</button>
+        <form method="GET" class="row g-3 mb-4">
+            <div class="col-md-4">
+                <input type="text" name="search" class="form-control" placeholder="Search by Name, Number, or Type" value="<?= htmlspecialchars($search); ?>">
+            </div>
+            <div class="col-md-4">
+                <select name="room_type" class="form-select">
+                    <option value="">All Room Types</option>
+                    <option value="Deluxe" <?= $room_type_filter === 'Deluxe' ? 'selected' : ''; ?>>Deluxe</option>
+                    <option value="Standard" <?= $room_type_filter === 'Standard' ? 'selected' : ''; ?>>Standard</option>
+                    <option value="Suite" <?= $room_type_filter === 'Suite' ? 'selected' : ''; ?>>Suite</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary">Filter</button>
+                <a href="rooms.php" class="btn btn-secondary">Reset</a>
+            </div>
+        </form>
         <!-- Room Table -->
         <table class="table table-bordered">
             <thead>
@@ -204,6 +279,62 @@ $result = mysqli_query($conn, $sql);
                     </div>
                     <div class="modal-footer">
                         <button type="submit" name="update" class="btn btn-primary">Update Room</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="roomModal" tabindex="-1" aria-labelledby="roomModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Room</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <input type="hidden" name="id" id="edit-room-id">
+                        <input type="hidden" name="existing_image" id="edit-existing-image">
+                        <div class="mb-3">
+                            <label for="edit-name" class="form-label">Room Name</label>
+                            <input type="text" class="form-control" name="name" id="edit-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-room_type" class="form-label">Room Type</label>
+                            <select class="form-control" name="room_type" id="edit-room_type" required>
+                                <option value="Superior">Superior</option>
+                                <option value="Deluxe">Deluxe</option>
+                                <option value="Standard">Standard</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-price" class="form-label">Price</label>
+                            <input type="number" step="0.01" class="form-control" name="price" id="edit-price" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-price" class="form-label">Number of Rooms</label>
+                            <input type="number" step="0.01" class="form-control" name="number_of_rooms" id="edit-price" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-capacity" class="form-label">Capacity</label>
+                            <input type="number" class="form-control" name="capacity" id="edit-capacity" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-amenities" class="form-label">Amenities</label>
+                            <textarea class="form-control" name="amenities" id="edit-amenities" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-description" class="form-label">Description</label>
+                            <textarea class="form-control" name="description" id="edit-description" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-images" class="form-label">Room Images</label>
+                            <input type="file" class="form-control" name="images[]" id="edit-images" multiple>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" name="create" class="btn btn-primary">Create Room</button>
                     </div>
                 </form>
             </div>

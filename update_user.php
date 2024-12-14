@@ -15,7 +15,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $room_id = (int)$_POST['room_id'];
     // Collect and validate user input
-    $age = isset($_POST['age']) ? (int) $_POST['age'] : null;
     $birthdate = isset($_POST['birthdate']) ? $_POST['birthdate'] : null;
     $gender = isset($_POST['gender']) ? $_POST['gender'] : null;
     $address = isset($_POST['address']) ? trim($_POST['address']) : null;
@@ -23,9 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Validate required fields
     $errors = [];
-    if ($age === null || $age <= 0) {
-        $errors[] = 'Age must be a valid number.';
-    }
+  
     if ($birthdate === null || strtotime($birthdate) === false) {
         $errors[] = 'Birthdate is invalid.';
     }
@@ -48,7 +45,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Update the user's details in the database
     $query = "UPDATE users SET 
-                age = ?, 
                 birthdate = ?, 
                 gender = ?, 
                 address = ?, 
@@ -56,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               WHERE id = ?";
 
     $stmt = $conn->prepare($query);
-    $stmt->bind_param('issssi', $age, $birthdate, $gender, $address, $phone_number, $user_id);
+    $stmt->bind_param('ssssi', $birthdate, $gender, $address, $phone_number, $user_id);
 
     if ($stmt->execute()) {
         // Success

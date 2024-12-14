@@ -29,16 +29,16 @@ session_start();
     <section id="carouselExampleControls" class="carousel slide carousel_section" data-bs-ride="carousel">
         <div class="carousel-inner">
             <div class="carousel-item active">
-                <img class="carousel-image" src="./image/hotel1.jpg">
+                <img class="carousel-image" src="./image/homepage1.jpg" style="width: 100%;"">
             </div>
             <div class="carousel-item">
-                <img class="carousel-image" src="./image/hotel2.jpg">
+                <img class="carousel-image" src="./image/homepage2.jpg" style="width: 100%;">
             </div>
             <div class="carousel-item">
-                <img class="carousel-image" src="./image/hotel3.jpg">
+                <img class="carousel-image" src="./image/homepage3.jpg" style="width: 100%;">
             </div>
             <div class="carousel-item">
-                <img class="carousel-image" src="./image/hotel4.jpg">
+                <img class="carousel-image" src="./image/homepage4.jpg" style="width: 100%;">
             </div>
         </div>
     </section>
