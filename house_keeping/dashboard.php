@@ -13,7 +13,7 @@ if (!empty($status_filter)) {
     $rooms_query .= " AND cleanliness_status = '" . mysqli_real_escape_string($conn, $status_filter) . "'";
 }
 if (!empty($type_filter)) {
-    $rooms_query .= " AND room_type = '" . mysqli_real_escape_string($conn, $type_filter) . "'";
+    $rooms_query .= " AND room_type = '" . mysqli_real_escape_string($conn, $type_filter) . "";
 }
 if (!empty($search)) {
     $search = mysqli_real_escape_string($conn, $search);

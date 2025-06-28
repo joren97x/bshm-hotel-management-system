@@ -4,7 +4,7 @@
             <!-- About Section -->
             <div class="col-md-4 mb-4">
                 <h5>About Us</h5>
-                <p>Welcome to our luxury hotel, where comfort meets elegance. Experience unmatched hospitality and world-class amenities.</p>
+                <p>Welcome to CPC Hotels, your destination for comfort and sophistication. Relax and unwind with our exceptional services and luxurious amenities.</p>
             </div>
 
             <!-- Quick Links Section -->
@@ -21,22 +21,22 @@
             <!-- Contact Information Section -->
             <div class="col-md-4 mb-4">
                 <h5>Contact</h5>
-                <p><i class="bi bi-geo-alt"></i> 123 Luxury Lane, Paradise City</p>
-                <p><i class="bi bi-telephone"></i> +123 456 7890</p>
-                <p><i class="bi bi-envelope"></i> info@luxuryhotel.com</p>
+                <p class="card-text">Gabi, Cordova, Cebu City, Philippines</p>
+                <p><i class="bi bi-telephone"></i> +123 987 6543</p>
+                <p><i class="bi bi-envelope"></i> info@cpchotels.com</p>
 
                 <!-- Social Media Icons -->
                 <div>
-                    <a href="#" class="text-light me-3"><i class="bi bi-facebook"></i></a>
-                    <a href="#" class="text-light me-3"><i class="bi bi-twitter"></i></a>
-                    <a href="#" class="text-light me-3"><i class="bi bi-instagram"></i></a>
+                    <a href="https://www.facebook.com/groups/548237391110154" class="text-light me-3"><i class="bi bi-facebook"></i></a>
+                    <a href="https://x.com/CPCLagos/status/770215661830299648" class="text-light me-3"><i class="bi bi-twitter"></i></a>
+                    <a href="https://www.instagram.com/chicagoplannerconference/p/DA92mI_RpmY/" class="text-light me-3"><i class="bi bi-instagram"></i></a>
                 </div>
             </div>
         </div>
 
         <!-- Copyright Section -->
-        <div class="text-center mt-3">
-            <p class="mb-0">&copy; <?php echo date('Y'); ?> Luxury Hotel. All rights reserved.</p>
+        <div class="text-end mt-3">
+            <p class="mb-0">&copy; <?php echo date('Y'); ?> CPC Hotels. All rights reserved.</p>
         </div>
     </div>
 </footer>

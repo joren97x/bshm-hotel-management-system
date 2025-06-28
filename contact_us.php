@@ -7,12 +7,12 @@ include 'navbar.php';
             font-family: 'Arial', sans-serif;
         }
 
-        .contact-header {
+        /* .contact-header {
             background: url('./uploads/contact-bg.jpg') no-repeat center center/cover;
             color: white;
             text-align: center;
             padding: 60px 0;
-        }
+        } */
 
         .contact-header h1 {
             font-size: 3.5rem;
@@ -65,10 +65,10 @@ include 'navbar.php';
     </style>
 
 <!-- Header Section -->
-<div class="contact-header">
+<!-- <div class="contact-header">
     <h1>Contact Us</h1>
     <p>We'd love to hear from you! Reach out with any questions, inquiries, or requests for assistance.</p>
-</div>
+</div> -->
 
 <div class="container form-section">
     <div class="row">

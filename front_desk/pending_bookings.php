@@ -1,7 +1,11 @@
-<?php 
+<?php
 include './sidebar.php';
 include '../config.php'; // Include database connection
 
+// Handle search input
+$searchTerm = isset($_GET['search']) ? $_GET['search'] : '';
+
+// Base query
 $query = "
     SELECT bookings.*, 
            IF(users.id IS NULL, bookings.name, CONCAT(users.first_name, ' ', users.last_name)) AS user_name, 
@@ -10,21 +14,41 @@ $query = "
     LEFT JOIN users ON bookings.user_id = users.id
     JOIN rooms ON bookings.room_id = rooms.id
     WHERE bookings.status = 'pending'
-    ORDER BY bookings.created_at DESC
 ";
 
+// Add search filter if a search term is provided
+if (!empty($searchTerm)) {
+    $query .= " AND (
+        CONCAT(users.first_name, ' ', users.last_name) LIKE '%" . mysqli_real_escape_string($conn, $searchTerm) . "%' OR
+        bookings.name LIKE '%" . mysqli_real_escape_string($conn, $searchTerm) . "%' OR
+        rooms.room_number LIKE '%" . mysqli_real_escape_string($conn, $searchTerm) . "%'
+    )";
+}
 
+// Append sorting order
+$query .= " ORDER BY bookings.created_at DESC";
+
+// Execute the query
 $result = mysqli_query($conn, $query);
 
 // Check if query was successful
 if (!$result) {
     die("Query failed: " . mysqli_error($conn));
 }
-
 ?>
+
 <body>
     <div class="container mt-5">
         <h2 class="mb-4">Pending Bookings</h2>
+        
+        <!-- Search Form -->
+        <form method="GET" class="mb-3">
+            <div class="input-group">
+                <input type="text" class="form-control" name="search" placeholder="Search by Name or Room Number" value="<?php echo htmlspecialchars($searchTerm); ?>">
+                <button class="btn btn-primary" type="submit">Search</button>
+            </div>
+        </form>
+        
         <table class="table table-bordered table-striped">
             <thead class="table-dark">
                 <tr>
@@ -42,20 +66,20 @@ if (!$result) {
             <tbody>
                 <?php while ($row = mysqli_fetch_assoc($result)): ?>
                     <tr>
-                        <td><?php echo $row['user_name'] ?></td>
-                        <td><?php echo $row['room_number']; ?></td>
-                        <td><?php echo htmlspecialchars($row['room_type']); ?></td> 
-                        <td><?php echo htmlspecialchars($row['guests']); ?></td> 
+                        <td><?php echo htmlspecialchars($row['user_name']); ?></td>
+                        <td><?php echo htmlspecialchars($row['room_number']); ?></td>
+                        <td><?php echo htmlspecialchars($row['room_type']); ?></td>
+                        <td><?php echo htmlspecialchars($row['guests']); ?></td>
                         <td>
-                            <?php 
-                                $check_in = new DateTime($row['check_in']);
-                                echo $check_in->format('D, M j, Y \a\t g A'); // e.g., "Wed, Dec 2, 2024 at 5 PM"
+                            <?php
+                            $check_in = new DateTime($row['check_in']);
+                            echo $check_in->format('D, M j, Y \a\t g A'); // e.g., "Wed, Dec 2, 2024 at 5 PM"
                             ?>
                         </td>
                         <td>
-                            <?php 
-                                $check_out = new DateTime($row['check_out']);
-                                echo $check_out->format('D, M j, Y'); // e.g., "Thu, Dec 3, 2024 at 10 AM"
+                            <?php
+                            $check_out = new DateTime($row['check_out']);
+                            echo $check_out->format('D, M j, Y'); // e.g., "Thu, Dec 3, 2024 at 10 AM"
                             ?>
                         </td>
                         <td><?php echo htmlspecialchars($row['status']); ?></td>
@@ -109,7 +133,7 @@ if (!$result) {
                         <span class="visually-hidden">Loading...</span>
                     </div>
                 </div>
-                
+
                 <!-- Booking details -->
                 <div id="modal-details" style="display: none;">
                     <div class="row mb-2">

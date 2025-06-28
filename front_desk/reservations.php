@@ -217,10 +217,10 @@ $default_capacity = $row['capacity'];
                     </select>
                 </div>
             </div>
-            <div class="mb-3 col-xs-12 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+            <!-- <div class="mb-3 col-xs-12 col-sm-6 col-md-6 col-lg-6 col-xl-6">
     <label>Room Price:</label>
     <span id="room_price">0</span>
-</div>
+</div> -->
 <div class="mb-3 col-xs-12 col-sm-6 col-md-6 col-lg-6 col-xl-6">
     <label>Total Price:</label>
     <span id="total_price">0.00</span>

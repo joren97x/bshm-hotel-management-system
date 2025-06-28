@@ -103,7 +103,7 @@ $facilities_result = mysqli_query($conn, $facilities_query);
         <!-- Add more images here -->
     </div>
     <div>
-        <h1>Welcome to Our Hotel</h1>
+        <h1>Welcome to CPC Hotel</h1>
         <p>Experience luxury and comfort like never before.</p>
         <a href="#rooms" class="btn btn-primary">Explore Rooms</a>
         <a href="#facilities" class="btn btn-outline-light">View Facilities</a>

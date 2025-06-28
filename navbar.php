@@ -62,7 +62,7 @@
             <!-- Logo and Brand -->
             <a class="navbar-brand" href="index.php">
                 <img src="image/hm.jpg" alt="Logo" width="40" height="40">
-                MySite
+               
             </a>
 
             <!-- Mobile Toggler -->

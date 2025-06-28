@@ -42,7 +42,7 @@ if (!$result) {
 
 <body>
     <div class="container mt-5">
-        <h2 class="mb-4"> Booking History</h2>
+        <h2 class="mb-4"> Transaction History</h2>
 
         <!-- Filters and Search -->
         <form method="GET" class="d-flex align-items-center mb-3">
